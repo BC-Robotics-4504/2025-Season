@@ -1,5 +1,5 @@
-import wpilib
 import rev
+
 
 class SparkMaxDriving:
     """Swerve Drive SparkMax Class

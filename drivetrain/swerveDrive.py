@@ -1,6 +1,7 @@
 import math
 import rev
-from drivetrain import SparkMaxDriving, SparkMaxTurning
+from sparkmaxDrive import SparkMaxDriving
+from sparkmaxTurning import SparkMaxTurning
 from components.config import RobotConfig
 
 from wpimath.filter import SlewRateLimiter
