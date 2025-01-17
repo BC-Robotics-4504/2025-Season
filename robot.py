@@ -6,13 +6,12 @@ from config import RobotConfig
 from hmi import HMI
 from drivetrain import SwerveDrive
 
-
 class MyRobot(MagicRobot):
 
     # Configuration Class
     RobotConfig = RobotConfig()
 
-    # Swerve Drive Component Code
+# Swerve Drive Component Code
     SwerveDrive: SwerveDrive
 
     # Controller Component Code
