@@ -54,7 +54,7 @@ class SparkMaxDriving:
         # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
         self.motor = rev.CANSparkMax(canID, rev.CANSparkMax.MotorType.kBrushless)
-        self.motor.restoreFactoryDefaults()
+        # self.motor.restoreFactoryDefaults()
 
         self.controller = self.motor.getPIDController()
         self.encoder = self.motor.getEncoder()
@@ -76,7 +76,7 @@ class SparkMaxDriving:
         self.controller.setFF(self.kFF1, slotID=1)
         self.controller.setOutputRange(self.kMinOutput1, self.kMaxOutput1, slotID=1)
 
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+        # self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
         self.motor.setSmartCurrentLimit(60)
 
         self.clearFaults()

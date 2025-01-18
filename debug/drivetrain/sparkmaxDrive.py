@@ -53,8 +53,8 @@ class SparkMaxDriving:
         # https://docs.reduxrobotics.com/canandcoder/spark-max
         # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
-        self.motor = rev.CANSparkMax(canID, rev.CANSparkMax.MotorType.kBrushless)
-        self.motor.restoreFactoryDefaults()
+        self.motor = rev.SparkMax(canID, rev.SparkMax.MotorType.kBrushless)
+        # self.motor.
 
         self.controller = self.motor.getPIDController()
         self.encoder = self.motor.getEncoder()
@@ -76,7 +76,7 @@ class SparkMaxDriving:
         self.controller.setFF(self.kFF1, slotID=1)
         self.controller.setOutputRange(self.kMinOutput1, self.kMaxOutput1, slotID=1)
 
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+        # self.motor.setIdleMode(rev.SparkMax.IdleMode.kBrake)
         self.motor.setSmartCurrentLimit(60)
 
         self.clearFaults()
@@ -102,7 +102,7 @@ class SparkMaxDriving:
         Sets the speed of the swerve modules"""
         # self.motor.set(speed)
         self.controller.setReference(
-            speed, rev.CANSparkMax.ControlType.kVelocity, pidSlot=0
+            speed, rev.SparkMax.ControlType.kVelocity, pidSlot=0
         )  # NOTE: Changed this.
         return None
 
@@ -127,7 +127,7 @@ class SparkMaxDriving:
         """
         self.targetDistance = targetDistance
         self.controller.setReference(
-            targetDistance, rev.CANSparkMax.ControlType.kPosition, pidSlot=1
+            targetDistance, rev.SparkMax.ControlType.kPosition, pidSlot=1
         )
         return False
 

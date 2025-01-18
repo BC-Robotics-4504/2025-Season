@@ -49,14 +49,14 @@ class SparkMaxPivot:
         # https://docs.reduxrobotics.com/canandcoder/spark-max
         # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
-        self.motor = rev.CANSparkMax(self.canID, rev.CANSparkMax.MotorType.kBrushless)  
-        self.motor.restoreFactoryDefaults()
+        self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)  
+        # self.motor.restoreFactoryDefaults()
         self.motor.setInverted(inverted)
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+        # self.motor.setIdleMode(rev.SparkMax.IdleMode.kBrake)
         self.motor.setSmartCurrentLimit(40)
 
         self.SMcontroller = self.motor.getPIDController()
-        self.encoder = self.motor.getAbsoluteEncoder(rev.SparkMaxAbsoluteEncoder.Type.kDutyCycle)
+        self.encoder = self.motor.getAbsoluteEncoder(rev.SparkMaxAlternateEncoder..kDutyCycle)
         self.encoder.setInverted(inverted)
         self.encoder.setPositionConversionFactor(2*math.pi/self.gear_ratio)
         self.encoder.setVelocityConversionFactor(.104719755119659771)
@@ -81,9 +81,9 @@ class SparkMaxPivot:
         
         # Setup follower
         if follower_canID is not None:
-            follower_motor = rev.CANSparkMax(self.follower_canID, rev.CANSparkMax.MotorType.kBrushless) 
-            follower_motor.restoreFactoryDefaults()
-            # follower_motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
+            follower_motor = rev.SparkMax(self.follower_canID, rev.SparkMax.MotorType.kBrushless) 
+            # follower_motor.restoreFactoryDefaults()
+            # follower_motor.setIdleMode(rev.SparkMax.IdleMode.kCoast)
             # follower_motor.setSmartCurrentLimit(40)
             follower_motor.follow(self.motor, invert=True)
             
@@ -106,7 +106,7 @@ class SparkMaxPivot:
         ::params:
         position: float : The position to set the motor controller to."""
         self.target_position = position-self.zOffset
-        self.SMcontroller.setReference(self.target_position, rev.CANSparkMax.ControlType.kPosition)
+        self.SMcontroller.setReference(self.target_position, rev.SparkMax.ControlType.kPosition)
         return False
     
     def getPosition(self):

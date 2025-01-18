@@ -48,9 +48,9 @@ class SparkMaxTurning:
         # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
         self.motor = rev.CANSparkMax(self.canID, rev.CANSparkMax.MotorType.kBrushless)
-        self.motor.restoreFactoryDefaults()
+        # self.motor.restoreFactoryDefaults()
         self.motor.setInverted(not inverted)
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
+        # self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
         self.motor.setSmartCurrentLimit(40)
 
         self.SMcontroller = self.motor.getPIDController()
