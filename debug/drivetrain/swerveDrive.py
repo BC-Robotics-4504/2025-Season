@@ -11,50 +11,7 @@ class SwerveDrive:
     """SwerveDrive Class"""
 
     def __init__(self):
-
-        self.SwerveDrive_FrontLeftAngleMotor = SparkMaxTurning(
-            6,
-            inverted=False,
-            gear_ratio=1,
-            wheel_diameter=1,
-            absolute_encoder=True,
-            z_offset=5.7535123,
-        )
-        self.SwerveDrive_FrontLeftSpeedMotor = SparkMaxDriving(
-            5, inverted=False, wheel_diameter=0.1143
-        )
-        self.SwerveDrive_RearLeftAngleMotor = SparkMaxTurning(
-            8,
-            inverted=False,
-            wheel_diameter=1,
-            absolute_encoder=True,
-            z_offset=5.6867370,
-        )
-        self.SwerveDrive_RearLeftSpeedMotor = SparkMaxDriving(
-            7, inverted=False, wheel_diameter=0.1143
-        )
-        self.SwerveDrive_RearRightAngleMotor = SparkMaxTurning(
-            2,
-            inverted=False,
-            wheel_diameter=1,
-            absolute_encoder=True,
-            z_offset=5.5975077,
-        )
-        self.SwerveDrive_RearRightSpeedMotor = SparkMaxDriving(
-            1, inverted=False, wheel_diameter=0.1143
-        )
-        self.SwerveDrive_FrontRightAngleMotor = SparkMaxTurning(
-            4,
-            inverted=False,
-            wheel_diameter=1,
-            absolute_encoder=True,
-            z_offset=0.0182671,
-        )
-        self.SwerveDrive_FrontRightSpeedMotor = SparkMaxDriving(
-            3, inverted=False, wheel_diameter=0.1143
-        )
-
-    pass
+     pass
 
     RobotConfig: RobotConfig
 
