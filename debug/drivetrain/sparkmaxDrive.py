@@ -53,32 +53,19 @@ class SparkMaxDriving:
         # https://docs.reduxrobotics.com/canandcoder/spark-max
         # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
-        self.motor = rev.SparkMax(canID, rev.SparkMax.MotorType.kBrushless)
-        # self.motor.
+        self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
+        self.config = rev.SparkMaxConfig()
+        
+        self.config.smartCurrentLimit(60)
+        self.config.absoluteEncoder.positionConversionFactor(1)
+        self.config.absoluteEncoder.velocityConversionFactor(1)
+        self.motor.getEncoder().setPosition(0)
 
-        self.controller = self.motor.getPIDController()
-        self.encoder = self.motor.getEncoder()
+        self.config.closedLoop.pidf(self.kP0, self.kI0, self.kD0, self.kFF0, rev.ClosedLoopSlot.kSlot0)
+        self.config.closedLoop.pidf(self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1)
+    
 
-        self.encoder.setPositionConversionFactor(1)
-        self.encoder.setVelocityConversionFactor(1)
-        self.encoder.setPosition(0)
-
-        # PID parameters
-        self.controller.setP(self.kP0, slotID=0)
-        self.controller.setI(self.kI0, slotID=0)
-        self.controller.setD(self.kD0, slotID=0)
-        self.controller.setFF(self.kFF0, slotID=0)
-        self.controller.setOutputRange(self.kMinOutput0, self.kMaxOutput0, slotID=0)
-
-        self.controller.setP(self.kP1, slotID=1)
-        self.controller.setI(self.kI1, slotID=1)
-        self.controller.setD(self.kD1, slotID=1)
-        self.controller.setFF(self.kFF1, slotID=1)
-        self.controller.setOutputRange(self.kMinOutput1, self.kMaxOutput1, slotID=1)
-
-        # self.motor.setIdleMode(rev.SparkMax.IdleMode.kBrake)
-        self.motor.setSmartCurrentLimit(60)
-
+        self.motor.configure(self.config, rev.SparkBase.ResetMode.kResetSafeParameters, rev.SparkBase.PersistMode.kPersistParameters)
         self.clearFaults()
 
     def clearFaults(self):
@@ -92,7 +79,7 @@ class SparkMaxDriving:
 
         Gets the current speed of the swerve modules
         """
-        vel = -self.encoder.getVelocity()  # rpm
+        vel = -self.motor.getEncoder().getVelocity # rpm
         return vel
 
     def setSpeed(self, speed):
@@ -101,7 +88,7 @@ class SparkMaxDriving:
 
         Sets the speed of the swerve modules"""
         # self.motor.set(speed)
-        self.controller.setReference(
+        self.motor.getClosedLoopController().setReference(
             speed, rev.SparkMax.ControlType.kVelocity, pidSlot=0
         )  # NOTE: Changed this.
         return None
@@ -110,7 +97,7 @@ class SparkMaxDriving:
         """SparkMaxDriving.atDistance()
 
         Checks if the robot has travlled to the specfied distance"""
-        currentDistance = self.encoder.getPosition()
+        currentDistance = self.motor.getEncoder().getPosition()
         print(currentDistance)
         if abs(currentDistance - self.targetDistance) <= self.tolerance:
             return True
@@ -126,11 +113,11 @@ class SparkMaxDriving:
         targetDistance: Distance for the robot to travel
         """
         self.targetDistance = targetDistance
-        self.controller.setReference(
+        self.motor.getClosedLoopController().setReference(
             targetDistance, rev.SparkMax.ControlType.kPosition, pidSlot=1
         )
         return False
 
     def resetEncoder(self):
-        self.encoder.setPosition(0)
+        self.motor.getEncoder().setPosition(0)
         return 0

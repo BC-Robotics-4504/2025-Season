@@ -3,6 +3,7 @@ import math
 import rev
 
 
+
 class SparkMaxTurning:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
@@ -42,46 +43,28 @@ class SparkMaxTurning:
         self.gear_ratio = gear_ratio
         self.wheel_diameter = wheel_diameter
         self.zOffset = z_offset
-
-        # Encoder parameters
-        # https://docs.reduxrobotics.com/canandcoder/spark-max
-        # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
-
+        
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
-        # self.motor.restoreFactoryDefaults()
-        self.motor.setInverted(not inverted)
-        # self.motor.setIdleMode(rev.SparkMax.IdleMode.kBrake)
-        self.motor.setSmartCurrentLimit(40)
-
-        self.SMcontroller = self.motor.getPIDController()
-        self.encoder = self.motor.getAbsoluteEncoder(
-            rev.SparkMaxAbsoluteEncoder.Type.kDutyCycle
-        )
-        self.encoder.setInverted(inverted)
-        self.encoder.setPositionConversionFactor(2 * math.pi)
-        self.encoder.setVelocityConversionFactor(0.104719755119659771)
-        self.encoder.setZeroOffset(z_offset)
-
-        self.SMcontroller.setFeedbackDevice(self.encoder)
-        self.SMcontroller.setPositionPIDWrappingEnabled(
-            True
-        )  # TODO: does this need to be removed?
-        self.SMcontroller.setPositionPIDWrappingMinInput(
-            0
-        )  # TODO: does this need to be removed?
-        self.SMcontroller.setPositionPIDWrappingMaxInput(
-            2 * math.pi
-        )  # TODO: does this need to be removed?
-
-        # PID parameters
-        self.SMcontroller.setP(self.kP)
-        self.SMcontroller.setI(self.kI)
-        self.SMcontroller.setD(self.kD)
-        self.SMcontroller.setIZone(self.kIz)
-        self.SMcontroller.setFF(self.kFF)
-        self.SMcontroller.setOutputRange(self.kMinOutput, self.kMaxOutput)
-
-        # self.controller.burnFlash()
+        self.config = rev.SparkMaxConfig()
+        
+        self.config.inverted(not inverted)
+        self.config.smartCurrentLimit(40)
+        
+        self.config.absoluteEncoder.inverted(inverted)
+        self.config.absoluteEncoder.positionConversionFactor(2*math.pi)
+        self.config.absoluteEncoder.velocityConversionFactor(0.104719755119659771)
+        self.config.absoluteEncoder.zeroOffset(z_offset)
+        
+        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
+        self.config.closedLoop.positionWrappingEnabled(True)
+        self.config.closedLoop.positionWrappingMinInput(0)
+        self.config.closedLoop.positionWrappingMaxInput(2*math.pi)
+        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
+        self.config.closedLoop.IZone(self.kIz)
+        self.config.closedLoop.outputRange(self.kMinOutput, self.kMaxOutput)
+        
+        self.motor.configure(self.config, rev.SparkBase.ResetMode.kResetSafeParameters, rev.SparkBase.PersistMode.kPersistParameters)
+       
         self.clearFaults()
 
     def clearFaults(self):
@@ -95,7 +78,8 @@ class SparkMaxTurning:
         """SparkMaxTurning.setAbsPosition()
 
         Sets the absoulute positon of the encoder"""
-        self.SMcontroller.setReference(position, rev.SparkMax.ControlType.kPosition)
+        # self.encoder.setReference(position, rev.SparkMax.ControlType.kPosition)
+        self.motor.getEncoder().setPosition(position, rev.SparkMax.ControlType.kPosition)
         return False
 
     def getAbsPosition(self):
@@ -103,5 +87,5 @@ class SparkMaxTurning:
 
         Gets the absolute positon of the encoder
         """
-        rotation = self.encoder.getPosition()
+        rotation = self.motor.getEncoder().getPosition()
         return rotation
