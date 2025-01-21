@@ -39,7 +39,6 @@ class MyRobot(MagicRobot):
         
         # HMI Hardware Config
         self.HMI_xbox = wpilib.XboxController(0)
-        pass
 
     # def disabledPeriodic(self):
     #     pass
@@ -67,38 +66,38 @@ class MyRobot(MagicRobot):
 
         self.SwerveDrive.move(Lx, Ly, Rx)
 
-        """
-        SmartDashboard Setup
-        """
+        # """
+        # SmartDashboard Setup
+        # """
 
-        # Add stuff to SmartDashboard
-        wpilib.SmartDashboard.putNumber(
-            "LF Speed", self.SwerveDrive.SwerveDrive_FrontLeftSpeedMotor.getSpeed()
-        )
-        wpilib.SmartDashboard.putNumber(
-            "LF Angle",
-            self.SwerveDrive.SwerveDrive_FrontLeftAngleMotor.getAbsPosition(),
-        )
-        wpilib.SmartDashboard.putNumber(
-            "RF Speed", self.SwerveDrive.SwerveDrive_FrontRightSpeedMotor.getSpeed()
-        )
-        wpilib.SmartDashboard.putNumber(
-            "RF Angle",
-            self.SwerveDrive.SwerveDrive_FrontRightAngleMotor.getAbsPosition(),
-        )
-        wpilib.SmartDashboard.putNumber(
-            "LR Speed", self.SwerveDrive.SwerveDrive_RearLeftSpeedMotor.getSpeed()
-        )
-        wpilib.SmartDashboard.putNumber(
-            "LR Angle", self.SwerveDrive.SwerveDrive_RearLeftAngleMotor.getAbsPosition()
-        )
-        wpilib.SmartDashboard.putNumber(
-            "RR Speed", self.SwerveDrive.SwerveDrive_RearRightSpeedMotor.getSpeed()
-        )
-        wpilib.SmartDashboard.putNumber(
-            "RR Angle",
-            self.SwerveDrive.SwerveDrive_RearRightAngleMotor.getAbsPosition(),
-        )
+        # # Add stuff to SmartDashboard
+        # wpilib.SmartDashboard.putNumber(
+        #     "LF Speed", self.SwerveDrive.SwerveDrive_FrontLeftSpeedMotor.getSpeed()
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "LF Angle",
+        #     self.SwerveDrive.SwerveDrive_FrontLeftAngleMotor.getAbsPosition(),
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "RF Speed", self.SwerveDrive.SwerveDrive_FrontRightSpeedMotor.getSpeed()
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "RF Angle",
+        #     self.SwerveDrive.SwerveDrive_FrontRightAngleMotor.getAbsPosition(),
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "LR Speed", self.SwerveDrive.SwerveDrive_RearLeftSpeedMotor.getSpeed()
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "LR Angle", self.SwerveDrive.SwerveDrive_RearLeftAngleMotor.getAbsPosition()
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "RR Speed", self.SwerveDrive.SwerveDrive_RearRightSpeedMotor.getSpeed()
+        # )
+        # wpilib.SmartDashboard.putNumber(
+        #     "RR Angle",
+        #     self.SwerveDrive.SwerveDrive_RearRightAngleMotor.getAbsPosition(),
+        # )
 
 
 if __name__ == "__main__":

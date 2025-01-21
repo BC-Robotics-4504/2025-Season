@@ -65,7 +65,7 @@ class SparkMaxDriving:
         self.config.closedLoop.pidf(self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1)
     
 
-        self.motor.configure(self.config, rev.SparkBase.ResetMode.kResetSafeParameters, rev.SparkBase.PersistMode.kPersistParameters)
+        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
         self.clearFaults()
 
     def clearFaults(self):
@@ -89,7 +89,7 @@ class SparkMaxDriving:
         Sets the speed of the swerve modules"""
         # self.motor.set(speed)
         self.motor.getClosedLoopController().setReference(
-            speed, rev.SparkMax.ControlType.kVelocity, pidSlot=0
+            speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
         )  # NOTE: Changed this.
         return None
 
@@ -114,7 +114,7 @@ class SparkMaxDriving:
         """
         self.targetDistance = targetDistance
         self.motor.getClosedLoopController().setReference(
-            targetDistance, rev.SparkMax.ControlType.kPosition, pidSlot=1
+            targetDistance, rev.SparkMax.ControlType.kPosition, rev.ClosedLoopSlot.kSlot1
         )
         return False
 

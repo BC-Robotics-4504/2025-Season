@@ -53,20 +53,20 @@ class SparkMaxTurning:
         self.config.absoluteEncoder.inverted(inverted)
         self.config.absoluteEncoder.positionConversionFactor(2*math.pi)
         self.config.absoluteEncoder.velocityConversionFactor(0.104719755119659771)
-        self.config.absoluteEncoder.zeroOffset(z_offset)
+        # self.config.absoluteEncoder.zeroOffset(z_offset) #!FIXME Causes code to crash with Invalid Parameter Runtime error
         
         self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
         self.config.closedLoop.positionWrappingEnabled(True)
         self.config.closedLoop.positionWrappingMinInput(0)
         self.config.closedLoop.positionWrappingMaxInput(2*math.pi)
         self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
-        self.config.closedLoop.IZone(self.kIz)
+        self.config.closedLoop.IZone(self.kIz) 
         self.config.closedLoop.outputRange(self.kMinOutput, self.kMaxOutput)
-        
-        self.motor.configure(self.config, rev.SparkBase.ResetMode.kResetSafeParameters, rev.SparkBase.PersistMode.kPersistParameters)
-       
-        self.clearFaults()
+        print("==========================================")
+        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+        print("xxxxxxxxxxxxxxxxxxxxxxxxAfterxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 
+        self.clearFaults()
     def clearFaults(self):
         """SparkMaxTurning.clearFaults()
 
@@ -74,12 +74,12 @@ class SparkMaxTurning:
         """
         self.motor.clearFaults()
 
-    def setAbsPosition(self, position):
+    def setAbsPosition(self, position: float):
         """SparkMaxTurning.setAbsPosition()
 
         Sets the absoulute positon of the encoder"""
-        # self.encoder.setReference(position, rev.SparkMax.ControlType.kPosition)
-        self.motor.getEncoder().setPosition(position, rev.SparkMax.ControlType.kPosition)
+        # self.encoder.(position, rev.SparkMax.ControlType.kPosition)
+        self.motor.getEncoder().setPosition(position)
         return False
 
     def getAbsPosition(self):
