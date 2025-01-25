@@ -58,6 +58,7 @@ class SparkMaxDriving:
         
         self.config.smartCurrentLimit(60)
         self.config.absoluteEncoder.positionConversionFactor(1)
+        
         self.config.absoluteEncoder.velocityConversionFactor(1)
         self.motor.getEncoder().setPosition(0)
 

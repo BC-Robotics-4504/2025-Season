@@ -239,7 +239,7 @@ class SwerveDrive:
         """SwerveDrive.execute()
         Updates the postion of the absolute encoders and the speed of each swerve module
         """
-
+        print(self.__frontLeftAngle__, self.__frontRightAngle__, self.__rearLeftAngle__, self.__rearRightAngle__)
         if self.move_changed:
 
             # self.clampSpeed()

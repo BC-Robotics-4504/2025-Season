@@ -10,13 +10,13 @@ class SparkMaxTurning:
     """
 
     # PID coefficients
-    kP = 0.25
+    kP = 0
     kI = 0
     kD = 0
     kIz = 0
-    kFF = 0
-    kMaxOutput = 2 * math.pi
-    kMinOutput = -2 * math.pi
+    kFF = 1.
+    kMaxOutput = math.pi
+    kMinOutput = -math.pi
     maxRPM = 5700
 
     # Smart Motion Coefficients
@@ -47,26 +47,32 @@ class SparkMaxTurning:
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.config = rev.SparkMaxConfig()
         
-        self.config.inverted(not inverted)
+        # self.config.inverted(not inverted)
         self.config.smartCurrentLimit(40)
         
-        self.config.absoluteEncoder.inverted(inverted)
-        self.config.absoluteEncoder.positionConversionFactor(2*math.pi)
+        self.config.absoluteEncoder.setSparkMaxDataPortConfig()
+        self.config.absoluteEncoder.inverted(not inverted)
+        self.config.absoluteEncoder.endPulseUs(4096)
+        self.config.absoluteEncoder.startPulseUs(1)
+        self.config.absoluteEncoder.positionConversionFactor(1.0)
         self.config.absoluteEncoder.velocityConversionFactor(0.104719755119659771)
+        self.encoder = self.motor.getAbsoluteEncoder()
+
+        self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
+   
         # self.config.absoluteEncoder.zeroOffset(z_offset) #!FIXME Causes code to crash with Invalid Parameter Runtime error
-        
+        #TODO: Configure Feedback Sensor dataport
         self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
-        self.config.closedLoop.positionWrappingEnabled(True)
-        self.config.closedLoop.positionWrappingMinInput(0)
-        self.config.closedLoop.positionWrappingMaxInput(2*math.pi)
+        # self.config.closedLoop.positionWrappingEnabled(True)
+        self.config.closedLoop.positionWrappingMinInput(-math.pi)
+        self.config.closedLoop.positionWrappingMaxInput(math.pi)
         self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
         self.config.closedLoop.IZone(self.kIz) 
         self.config.closedLoop.outputRange(self.kMinOutput, self.kMaxOutput)
-        print("==========================================")
         self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
-        print("xxxxxxxxxxxxxxxxxxxxxxxxAfterxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-
+        self.controller = self.motor.getClosedLoopController()
         self.clearFaults()
+        
     def clearFaults(self):
         """SparkMaxTurning.clearFaults()
 
@@ -78,8 +84,7 @@ class SparkMaxTurning:
         """SparkMaxTurning.setAbsPosition()
 
         Sets the absoulute positon of the encoder"""
-        # self.encoder.(position, rev.SparkMax.ControlType.kPosition)
-        self.motor.getEncoder().setPosition(position)
+        self.controller.setReference(position, rev._rev.SparkLowLevel.ControlType.kPosition)
         return False
 
     def getAbsPosition(self):
@@ -87,5 +92,5 @@ class SparkMaxTurning:
 
         Gets the absolute positon of the encoder
         """
-        rotation = self.motor.getEncoder().getPosition()
+        rotation = self.encoder.getPosition()
         return rotation
