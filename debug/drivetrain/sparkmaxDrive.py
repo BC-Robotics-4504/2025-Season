@@ -1,4 +1,7 @@
 import rev
+import math
+from config import RobotConfig
+
 
 
 class SparkMaxDriving:
@@ -31,6 +34,8 @@ class SparkMaxDriving:
     minVel = 0
     allowedErr = 0
 
+    driveFactor = (RobotConfig.drive_wheel_diameter*math.pi)/(RobotConfig.drivingMotorReduction)
+
     targetDistance = 5.5
     tolerance = 0.1
 
@@ -57,11 +62,12 @@ class SparkMaxDriving:
         self.config = rev.SparkMaxConfig()
         
         self.config.smartCurrentLimit(60)
-        self.config.absoluteEncoder.positionConversionFactor(1)
+        self.config.absoluteEncoder.positionConversionFactor(0.05077956125529683)
         
-        self.config.absoluteEncoder.velocityConversionFactor(1)
+        self.config.absoluteEncoder.velocityConversionFactor(self.driveFactor)
         self.motor.getEncoder().setPosition(0)
 
+        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
         self.config.closedLoop.pidf(self.kP0, self.kI0, self.kD0, self.kFF0, rev.ClosedLoopSlot.kSlot0)
         self.config.closedLoop.pidf(self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1)
     
@@ -99,7 +105,7 @@ class SparkMaxDriving:
 
         Checks if the robot has travlled to the specfied distance"""
         currentDistance = self.motor.getEncoder().getPosition()
-        print(currentDistance)
+        # print(currentDistance)
         if abs(currentDistance - self.targetDistance) <= self.tolerance:
             return True
 

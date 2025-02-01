@@ -12,6 +12,8 @@ class RobotConfig:
     # Robot Geometry Parameters
     chassis_length: float = 0.7366  # 29 in to m
     chassis_width: float = 0.7366  # 29 in to m
+    
+    drivingMotorReduction: float = 8.14
 
     # Swerve Drive Parameters
     speed_clamp: float = 0.65
