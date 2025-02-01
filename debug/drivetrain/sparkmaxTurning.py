@@ -8,7 +8,7 @@ class SparkMaxTurning:
     """
 
     # PID coefficients
-    kP = 0.25
+    kP = 0.15
     kI = 0
     kD = 0
     kIz = 0
@@ -18,8 +18,8 @@ class SparkMaxTurning:
     maxRPM = 5700
 
     # Smart Motion Coefficients
-    maxVel = 2000  # rpm
-    maxAcc = 1000
+    maxVel = 1000  # rpm
+    maxAcc = 600
     minVel = 0
     allowedErr = 0
 
@@ -43,6 +43,7 @@ class SparkMaxTurning:
         self.zOffset = z_offset
         
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
+        self.motor.setInverted(inverted)
         self.config = rev.SparkMaxConfig()
         
         # self.config.smartCurrentLimit(20)
@@ -54,8 +55,11 @@ class SparkMaxTurning:
         self.config.absoluteEncoder.positionConversionFactor(2*math.pi)
         
         # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
-   
-        # # self.config.absoluteEncoder.zeroOffset(z_offset) #!FIXME Causes code to crash with Invalid Parameter Runtime error
+        z_offset /= 2.*math.pi
+        if z_offset < 0.:
+            z_offset += 1.
+
+        self.config.absoluteEncoder.zeroOffset(z_offset) #!FIXME Causes code to crash with Invalid Parameter Runtime error
         # #TODO: Configure Feedback Sensor dataport
         self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
         self.config.closedLoop.positionWrappingEnabled(True)
