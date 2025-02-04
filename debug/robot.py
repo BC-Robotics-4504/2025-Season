@@ -7,6 +7,8 @@ from config import RobotConfig
 
 from hmi import HMI
 from drivetrain import SwerveDrive, SparkMaxDriving, SparkMaxTurning
+from vision import Vision
+from vision import Limelight
 
 class MyRobot(MagicRobot):
 
@@ -18,6 +20,9 @@ class MyRobot(MagicRobot):
 
     # Controller Component Code
     HMI: HMI
+
+    # Vision Code
+    Vision: Vision
 
     controlGain: float = 1
 
@@ -44,6 +49,10 @@ class MyRobot(MagicRobot):
         
         # HMI Hardware Config
         self.HMI_xbox = wpilib.XboxController(0)
+
+        # Vision Hardware Config
+        self.VisionLimelight = Limelight(name="limelight_front")
+        
 
     def disabledPeriodic(self):
         pass
