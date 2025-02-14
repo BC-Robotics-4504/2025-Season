@@ -53,16 +53,18 @@ class SparkMaxPivot:
         # https://docs.reduxrobotics.com/canandcoder/spark-max
         # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
-        self.motor = rev.CANSparkMax(self.canID, rev.CANSparkMax.MotorType.kBrushless)  
-        self.motor.restoreFactoryDefaults()
-        self.motor.setInverted(inverted)
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
-        self.motor.setSmartCurrentLimit(40)
-
-        self.SMcontroller = self.motor.getPIDController()
-        self.encoder = self.motor.getAbsoluteEncoder(rev.SparkMaxAbsoluteEncoder.Type.kDutyCycle)
-        self.encoder.setInverted(inverted)
-        self.encoder.setPositionConversionFactor(2*math.pi/self.gear_ratio)
+        self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
+        self.config = rev.SparkMaxConfig()
+        
+        self.config.inverted(inverted)
+        self.config.setIdleMode(rev.SparkMax.IdleMode.kBrake)
+        self.config.smartCurrentLimit(40)
+        
+        self.encoder = self.motor.getAbsoluteEncoder()
+        self.config.absoluteEncoder.inverted(inverted)
+        self.config.absoluteEncoder.positionConversionFactor(2*math.pi/self.gear_ratio)
+        self.config.absoluteEncoder.velocityConversionFactor(.104719755119659771)
+        
         self.encoder.setVelocityConversionFactor(.104719755119659771)
         
         self.SMcontroller.setFeedbackDevice(self.encoder)
@@ -76,12 +78,10 @@ class SparkMaxPivot:
         # self.SMcontroller.setSmartMotionAllowedClosedLoopError(self.allowedErr, self.smartMotionSlot)
         
         # PID parameters
-        self.SMcontroller.setP(self.kP)
-        self.SMcontroller.setI(self.kI)
-        self.SMcontroller.setD(self.kD)
-        self.SMcontroller.setIZone(self.kIz)
-        self.SMcontroller.setFF(self.kFF)
-        self.SMcontroller.setOutputRange(self.kMinOutput, self.kMaxOutput)
+        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
+        self.config.closedLoop.IZone(self.kIz)
+
+        self.config.closedLoop.outputRange(self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0)
         
         # Setup follower
         if follower_canID is not None:

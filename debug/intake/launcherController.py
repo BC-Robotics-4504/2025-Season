@@ -5,6 +5,7 @@ from wpilib import Timer
 from launcher import Launcher
 from drivetrain import SwerveDrive
 
+from config import RobotConfig
 class LauncherActions(Enum):
     RAISE_INTAKE = 1
     LOWER_INTAKE = 2
