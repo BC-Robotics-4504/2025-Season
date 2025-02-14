@@ -2,6 +2,7 @@ import wpilib
 import math
 import rev
 
+
 class SparkMaxTurning:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
@@ -13,8 +14,8 @@ class SparkMaxTurning:
     kD = 0
     kIz = 0
     kFF = 0.0
-    kMaxOutput = 2*math.pi
-    kMinOutput = -2*math.pi
+    kMaxOutput = 2 * math.pi
+    kMinOutput = -2 * math.pi
     maxRPM = 5700
 
     # Smart Motion Coefficients
@@ -41,39 +42,48 @@ class SparkMaxTurning:
         self.gear_ratio = gear_ratio
         self.wheel_diameter = wheel_diameter
         self.zOffset = z_offset
-        
+
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.motor.setInverted(inverted)
         self.config = rev.SparkMaxConfig()
-        
+
         # self.config.smartCurrentLimit(20)
-        
+
         self.config.absoluteEncoder.setSparkMaxDataPortConfig()
         self.config.absoluteEncoder.inverted(not inverted)
         self.config.absoluteEncoder.endPulseUs(1024)
         self.config.absoluteEncoder.startPulseUs(1)
-        self.config.absoluteEncoder.positionConversionFactor(2*math.pi)
-        
-        # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
-        z_offset /= 2.*math.pi
-        if z_offset < 0.:
-            z_offset += 1.
+        self.config.absoluteEncoder.positionConversionFactor(2 * math.pi)
 
-        self.config.absoluteEncoder.zeroOffset(z_offset) #!FIXME Causes code to crash with Invalid Parameter Runtime error
+        # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
+        z_offset /= 2.0 * math.pi
+        if z_offset < 0.0:
+            z_offset += 1.0
+
+        self.config.absoluteEncoder.zeroOffset(
+            z_offset
+        )  #!FIXME Causes code to crash with Invalid Parameter Runtime error
         # #TODO: Configure Feedback Sensor dataport
-        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
+        self.config.closedLoop.setFeedbackSensor(
+            rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
+        )
         self.config.closedLoop.positionWrappingEnabled(True)
-        self.config.closedLoop.positionWrappingMinInput(0) 
-        self.config.closedLoop.positionWrappingMaxInput(2*math.pi)
+        self.config.closedLoop.positionWrappingMinInput(0)
+        self.config.closedLoop.positionWrappingMaxInput(2 * math.pi)
         self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
-        self.config.closedLoop.outputRange(self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0)
-        
-        
-        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+        self.config.closedLoop.outputRange(
+            self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0
+        )
+
+        self.motor.configure(
+            self.config,
+            rev.SparkMax.ResetMode.kResetSafeParameters,
+            rev.SparkMax.PersistMode.kPersistParameters,
+        )
         self.encoder = self.motor.getAbsoluteEncoder()
         self.controller = self.motor.getClosedLoopController()
         self.clearFaults()
-        
+
     def clearFaults(self):
         """SparkMaxTurning.clearFaults()
 
@@ -85,7 +95,9 @@ class SparkMaxTurning:
         """SparkMaxTurning.setAbsPosition()
 
         Sets the absoulute positon of the encoder"""
-        self.controller.setReference(position, rev._rev.SparkLowLevel.ControlType.kPosition)
+        self.controller.setReference(
+            position, rev._rev.SparkLowLevel.ControlType.kPosition
+        )
         return False
 
     def getAbsPosition(self):

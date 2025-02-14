@@ -11,7 +11,7 @@ class SwerveDrive:
     """SwerveDrive Class"""
 
     def __init__(self):
-     pass
+        pass
 
     RobotConfig: RobotConfig
 
@@ -245,7 +245,6 @@ class SwerveDrive:
         # print('Front Right:', round(self.FrontRightAngleMotor.getAbsPosition(), 5), self.__frontRightAngle__ )
         # print('\n')
 
-        
         if self.move_changed:
 
             # self.clampSpeed()

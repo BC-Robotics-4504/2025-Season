@@ -6,6 +6,8 @@ from launcher import Launcher
 from drivetrain import SwerveDrive
 
 from config import RobotConfig
+
+
 class LauncherActions(Enum):
     RAISE_INTAKE = 1
     LOWER_INTAKE = 2
@@ -13,10 +15,11 @@ class LauncherActions(Enum):
     SHOOT_AMP = 4
     WAIT = 5
 
+
 class LauncherController(StateMachine):
     MODE_NAME = "Launcher Controller"
     DEFAULT = False
-    
+
     target_action = LauncherActions.WAIT
 
     Kp = -0.1
@@ -26,7 +29,7 @@ class LauncherController(StateMachine):
 
     isEngaged = False
     isShooting = False
-    
+
     timer = Timer()
     timer.start()
 
@@ -35,7 +38,7 @@ class LauncherController(StateMachine):
 
     def raiseIntake(self):
         self.target_action = LauncherActions.RAISE_INTAKE
-        
+
     def raiseIntakeAmp(self):
         self.target_action = LauncherActions.SHOOT_AMP
         self.isShooting = False
@@ -50,79 +53,79 @@ class LauncherController(StateMachine):
     def currentlyShooting(self):
         return self.isShooting
 
-    '''
+    """
     STATE MACHINE DEFINITIONS ===================================
-    '''
+    """
 
     @state(first=True)
-    def __wait__(self):       
+    def __wait__(self):
         if self.Launcher.isNoteInIntake():
-            self.next_state_now('__raiseIntake__')
-        
+            self.next_state_now("__raiseIntake__")
+
         if self.target_action == LauncherActions.RAISE_INTAKE:
-            self.next_state('__raiseIntake__')
+            self.next_state("__raiseIntake__")
 
         if self.target_action == LauncherActions.LOWER_INTAKE:
-            self.next_state('__lowerIntake__')
-            
+            self.next_state("__lowerIntake__")
+
         if self.target_action == LauncherActions.SHOOT_SPEAKER:
             self.timer.restart()
-            self.next_state('__spinupLauncher__')
-            
+            self.next_state("__spinupLauncher__")
+
         if self.target_action == LauncherActions.SHOOT_AMP:
-            self.next_state('__ampIntake__')
-            
+            self.next_state("__ampIntake__")
+
         self.target_action = LauncherActions.WAIT
-           
+
     @state()
     def __lowerIntake__(self):
         self.Launcher.lowerIntake()
         self.Launcher.spinIntakeIn()
-        self.next_state('__wait__')
-            
+        self.next_state("__wait__")
+
     @state()
     def __spinupLauncher__(self):
         self.Launcher.spinupShooter()
-        if self.Launcher.isLauncherAtSpeed() or self.timer.hasElapsed(self.RobotConfig.shooting_abort_delay):
+        if self.Launcher.isLauncherAtSpeed() or self.timer.hasElapsed(
+            self.RobotConfig.shooting_abort_delay
+        ):
             self.timer.restart()
-            self.next_state_now('__launchNoteSpeaker__')
-            
-    
+            self.next_state_now("__launchNoteSpeaker__")
+
     @state()
     def __launchNoteSpeaker__(self):
         self.Launcher.feedShooterSpeaker()
         if self.timer.hasElapsed(self.RobotConfig.intake_feed_delay):
             self.timer.stop()
             self.isShooting = False
-            self.next_state('__spindownLauncher__')
-            
+            self.next_state("__spindownLauncher__")
+
     @state()
     def __spindownLauncher__(self):
         self.Launcher.spindownLauncher()
         self.Launcher.spindownIntake()
-        self.next_state('__wait__')
-            
+        self.next_state("__wait__")
+
     @state()
     def __raiseIntake__(self):
         self.Launcher.raiseIntake()
         self.Launcher.spindownIntake()
-        self.next_state('__wait__')
-    
+        self.next_state("__wait__")
+
     @state()
     def __ampIntake__(self):
         self.Launcher.ampIntake()
         if self.Launcher.isPositionedIntake():
             self.timer.restart()
-            self.next_state('__launchNoteAmp__')
-        
+            self.next_state("__launchNoteAmp__")
+
     @state()
     def __launchNoteAmp__(self):
         self.Launcher.feedShooterAmp()
         if self.timer.hasElapsed(self.RobotConfig.intake_feed_delay):
             self.timer.stop()
             self.isShooting = False
-            self.next_state('__raiseIntake__')            
-        
+            self.next_state("__raiseIntake__")
 
     # @state(must_finish=True)
     # def __alignLauncher__(self):

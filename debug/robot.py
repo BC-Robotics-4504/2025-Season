@@ -10,12 +10,13 @@ from drivetrain import SwerveDrive, SparkMaxDriving, SparkMaxTurning
 from vision import Vision
 from vision import Limelight
 
+
 class MyRobot(MagicRobot):
 
     # Configuration Class
     RobotConfig = RobotConfig()
 
-# Swerve Drive Component Code
+    # Swerve Drive Component Code
     SwerveDrive: SwerveDrive
 
     # Controller Component Code
@@ -31,28 +32,44 @@ class MyRobot(MagicRobot):
 
         Create motors and other hardware components here."""
         # Swerve Drive Hardware Config
-        self.SwerveDrive_FrontLeftAngleMotor = SparkMaxTurning(6, inverted=False, gear_ratio=1, wheel_diameter=1, 
-                                                               absolute_encoder=True, z_offset=4.2)
-        self.SwerveDrive_FrontLeftSpeedMotor = SparkMaxDriving(5, inverted=False, wheel_diameter=0.1143)
-        
-        self.SwerveDrive_RearLeftAngleMotor = SparkMaxTurning(8, inverted=False, wheel_diameter=1, 
-                                                              absolute_encoder=True, z_offset=3.9)
-        self.SwerveDrive_RearLeftSpeedMotor = SparkMaxDriving(7, inverted=False, wheel_diameter=0.1143)
-        
-        self.SwerveDrive_RearRightAngleMotor = SparkMaxTurning(2, inverted=False, wheel_diameter=1, 
-                                                               absolute_encoder=True, z_offset=4.1)
-        self.SwerveDrive_RearRightSpeedMotor = SparkMaxDriving(1, inverted=False, wheel_diameter=0.1143)
-        
-        self.SwerveDrive_FrontRightAngleMotor = SparkMaxTurning(4, inverted=False, wheel_diameter=1, 
-                                                                absolute_encoder=True, z_offset=.75)
-        self.SwerveDrive_FrontRightSpeedMotor = SparkMaxDriving(3, inverted=False, wheel_diameter=0.1143)
-        
+        self.SwerveDrive_FrontLeftAngleMotor = SparkMaxTurning(
+            6,
+            inverted=False,
+            gear_ratio=1,
+            wheel_diameter=1,
+            absolute_encoder=True,
+            z_offset=4.2,
+        )
+        self.SwerveDrive_FrontLeftSpeedMotor = SparkMaxDriving(
+            5, inverted=False, wheel_diameter=0.1143
+        )
+
+        self.SwerveDrive_RearLeftAngleMotor = SparkMaxTurning(
+            8, inverted=False, wheel_diameter=1, absolute_encoder=True, z_offset=3.9
+        )
+        self.SwerveDrive_RearLeftSpeedMotor = SparkMaxDriving(
+            7, inverted=False, wheel_diameter=0.1143
+        )
+
+        self.SwerveDrive_RearRightAngleMotor = SparkMaxTurning(
+            2, inverted=False, wheel_diameter=1, absolute_encoder=True, z_offset=4.1
+        )
+        self.SwerveDrive_RearRightSpeedMotor = SparkMaxDriving(
+            1, inverted=False, wheel_diameter=0.1143
+        )
+
+        self.SwerveDrive_FrontRightAngleMotor = SparkMaxTurning(
+            4, inverted=False, wheel_diameter=1, absolute_encoder=True, z_offset=0.75
+        )
+        self.SwerveDrive_FrontRightSpeedMotor = SparkMaxDriving(
+            3, inverted=False, wheel_diameter=0.1143
+        )
+
         # HMI Hardware Config
         self.HMI_xbox = wpilib.XboxController(0)
 
         # Vision Hardware Config
         self.VisionLimelight = Limelight(name="limelight_front")
-        
 
     def disabledPeriodic(self):
         pass
@@ -67,7 +84,7 @@ class MyRobot(MagicRobot):
 
     def teleopPeriodic(self):
         """MyRobot.teleopPeriodic() -> None
-        
+
         Called repeatedly during teleoperated mode."""
         # if self.Vision.getTargetDistance() is not None:
         #     print(self.Vision.getTargetDistance())

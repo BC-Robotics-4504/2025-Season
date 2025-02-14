@@ -3,7 +3,6 @@ import math
 from config import RobotConfig
 
 
-
 class SparkMaxDriving:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
@@ -34,7 +33,9 @@ class SparkMaxDriving:
     minVel = 0
     allowedErr = 0
 
-    driveFactor = (RobotConfig.drive_wheel_diameter*math.pi)/(RobotConfig.drivingMotorReduction)
+    driveFactor = (RobotConfig.drive_wheel_diameter * math.pi) / (
+        RobotConfig.drivingMotorReduction
+    )
 
     targetDistance = 5.5
     tolerance = 0.1
@@ -60,19 +61,28 @@ class SparkMaxDriving:
 
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.config = rev.SparkMaxConfig()
-        
+
         self.config.smartCurrentLimit(60)
         self.config.absoluteEncoder.positionConversionFactor(0.05077956125529683)
-        
+
         self.config.absoluteEncoder.velocityConversionFactor(self.driveFactor)
         self.motor.getEncoder().setPosition(0)
 
-        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
-        self.config.closedLoop.pidf(self.kP0, self.kI0, self.kD0, self.kFF0, rev.ClosedLoopSlot.kSlot0)
-        self.config.closedLoop.pidf(self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1)
-    
+        self.config.closedLoop.setFeedbackSensor(
+            rev.ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder
+        )
+        self.config.closedLoop.pidf(
+            self.kP0, self.kI0, self.kD0, self.kFF0, rev.ClosedLoopSlot.kSlot0
+        )
+        self.config.closedLoop.pidf(
+            self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1
+        )
 
-        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+        self.motor.configure(
+            self.config,
+            rev.SparkMax.ResetMode.kResetSafeParameters,
+            rev.SparkMax.PersistMode.kPersistParameters,
+        )
         self.clearFaults()
 
     def clearFaults(self):
@@ -86,7 +96,7 @@ class SparkMaxDriving:
 
         Gets the current speed of the swerve modules
         """
-        vel = -self.motor.getEncoder().getVelocity # rpm
+        vel = -self.motor.getEncoder().getVelocity  # rpm
         return vel
 
     def setSpeed(self, speed):
@@ -121,7 +131,9 @@ class SparkMaxDriving:
         """
         self.targetDistance = targetDistance
         self.motor.getClosedLoopController().setReference(
-            targetDistance, rev.SparkMax.ControlType.kPosition, rev.ClosedLoopSlot.kSlot1
+            targetDistance,
+            rev.SparkMax.ControlType.kPosition,
+            rev.ClosedLoopSlot.kSlot1,
         )
         return False
 

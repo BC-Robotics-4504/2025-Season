@@ -4,12 +4,13 @@ import wpilib
 import rev
 
 from config import RobotConfig
-    
+
+
 class SparkMaxDualSpinner:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
     """
-    
+
     # PID coefficients
     kP = 0.32
     kI = 1e-4
@@ -26,7 +27,7 @@ class SparkMaxDualSpinner:
     minVel = 0
     allowedErr = 0
 
-    smartMotionSlot=0
+    smartMotionSlot = 0
 
     def __init__(
         self,
@@ -35,7 +36,7 @@ class SparkMaxDualSpinner:
         gear_ratio=1,
         wheel_diameter=1,
         absolute_encoder=False,
-        z_offset = 0
+        z_offset=0,
     ):
         self.canID = canID
         self.gear_ratio = gear_ratio
@@ -53,42 +54,45 @@ class SparkMaxDualSpinner:
         self.controller = self.motor.getClosedLoopController()
         self.encoder = self.motor.getAbsoluteEncoder()
 
-        self.config.encoder.velocityConversionFactor(.104719755119659771)
-        
-        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+        self.config.encoder.velocityConversionFactor(0.104719755119659771)
+
+        self.motor.configure(
+            self.config,
+            rev.SparkMax.ResetMode.kResetSafeParameters,
+            rev.SparkMax.PersistMode.kPersistParameters,
+        )
 
         self.clearFaults()
-        
+
     def clearFaults(self):
         """SparkMaxDualSpinner.clearFaults() -> None
-        
+
         Clear the faults on the motor controller."""
         self.motor.clearFaults()
-    
+
     def setSpeed(self, speed):
         """SparkMaxDualSpinner.setSpeed(speed: float) -> None
-        
+
         Set the speed of the motor controller.
-        
+
         ::params:
         speed: float : The speed to set the motor controller to."""
-    
+
         self.target_speed = speed
         self.motor.set(speed)
         return False
-    
+
     def getSpeed(self):
         """SparkMaxDualSpinner.getSpeed() -> float
-        
+
         Gets the current speed of the motor controller."""
         return self.encoder.getVelocity()
-    
+
     def atSpeed(self, tolerance=0.02):
         """SparkMaxDualSpinner.atSpeed(tolerance: float) -> bool
-        
+
         Check if the motor controller is at speed."""
         err = self.target_speed - self.getSpeed()
         if abs(err) <= tolerance:
             return True
         return False
-    
