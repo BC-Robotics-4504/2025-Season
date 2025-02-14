@@ -45,20 +45,20 @@ class SparkMaxDualSpinner:
         self.wheel_diameter = wheel_diameter
         self.zOffset = z_offset
 
-        self.motor = rev.CANSparkMax(self.canID, rev.CANSparkMax.MotorType.kBrushless)  
-        self.motor.restoreFactoryDefaults()
-        self.motor.setInverted(not inverted)
-        self.motor.setIdleMode(rev.CANSparkMax.IdleMode.kBrake)
-        self.motor.setSmartCurrentLimit(25)
+        self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
+        self.config = rev.SparkMaxConfig()
+        self.config.inverted(not inverted)
+        self.config.setIdleMode(rev.SparkMax.IdleMode.kBrake)
+        self.config.smartCurrentLimit(25)
+        self.controller = self.motor.getClosedLoopController()
+        self.encoder = self.motor.getAbsoluteEncoder()
 
-        self.SMcontroller = self.motor.getPIDController()
-        self.encoder = self.motor.getEncoder()
-        # self.encoder.setInverted(inverted)
-        self.encoder.setVelocityConversionFactor(.104719755119659771)
+        self.config.encoder.velocityConversionFactor(.104719755119659771)
         
-        #self.controller.burnFlash()    
+        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+
         self.clearFaults()
-    
+        
     def clearFaults(self):
         """SparkMaxDualSpinner.clearFaults() -> None
         

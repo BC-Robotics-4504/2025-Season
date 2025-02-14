@@ -4,7 +4,7 @@ import json
 import time
 
 discovered_limelights = limelight.discover_limelights(debug=True)
-limelightresults.
+# limelightresults.
 print("discovered limelights:", discovered_limelights)
 
 if discovered_limelights:
@@ -19,7 +19,7 @@ if discovered_limelights:
     print("-----")
     print("temp:", ll.get_temp())
     print("-----")
-    print("name:", ll.get_name())+
+    print("name:", ll.get_name())
     print("-----")
     print("fps:", ll.get_fps())
     print("-----")

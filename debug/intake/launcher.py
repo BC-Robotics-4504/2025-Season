@@ -1,4 +1,3 @@
-
 import rev
 import wpilib
 

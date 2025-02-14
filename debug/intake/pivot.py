@@ -61,16 +61,18 @@ class SparkMaxPivot:
         self.config.smartCurrentLimit(40)
         
         self.encoder = self.motor.getAbsoluteEncoder()
+        self.controller = self.motor.getClosedLoopController()
+
         self.config.absoluteEncoder.inverted(inverted)
         self.config.absoluteEncoder.positionConversionFactor(2*math.pi/self.gear_ratio)
         self.config.absoluteEncoder.velocityConversionFactor(.104719755119659771)
         
         self.encoder.setVelocityConversionFactor(.104719755119659771)
         
-        self.SMcontroller.setFeedbackDevice(self.encoder)
-        self.SMcontroller.setPositionPIDWrappingEnabled(False) #TODO: does this need to be removed?
-        self.SMcontroller.setPositionPIDWrappingMinInput(0) #TODO: does this need to be removed?
-        self.SMcontroller.setPositionPIDWrappingMaxInput(2*math.pi/self.gear_ratio) #TODO: does this need to be removed?
+        self.config.closedLoop.setFeedbackSensor(self.encoder)
+        self.config.closedLoop.positionWrappingEnabled(False)
+        self.config.closedLoop.positionWrappingMinInput(0)
+        self.config.closedLoop.positionWrappingMaxInput(2*math.pi/self.gear_ratio)
         
         # self.SMcontroller.setSmartMotionMaxVelocity(self.maxVel, self.smartMotionSlot)
         # self.SMcontroller.setSmartMotionMinOutputVelocity(self.minVel, self.smartMotionSlot)
@@ -83,13 +85,17 @@ class SparkMaxPivot:
 
         self.config.closedLoop.outputRange(self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0)
         
+        self.motor.configure(self.config, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+
         # Setup follower
         if follower_canID is not None:
-            follower_motor = rev.CANSparkMax(self.follower_canID, rev.CANSparkMax.MotorType.kBrushless) 
-            follower_motor.restoreFactoryDefaults()
+            follower_motor = rev.SparkMax(self.follower_canID, rev.SparkMax.MotorType.kBrushless) 
+            self.followerConfig = rev.SparkMaxConfig()
+            self.followerConfig.follow(self.motor, invert=True)
+            self.motor.configure(self.followerConfig, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+
             # follower_motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
             # follower_motor.setSmartCurrentLimit(40)
-            follower_motor.follow(self.motor, invert=True)
             
             self.follower_motor = follower_motor
             
@@ -110,7 +116,7 @@ class SparkMaxPivot:
         ::params:
         position: float : The position to set the motor controller to."""
         self.target_position = position-self.zOffset
-        self.SMcontroller.setReference(self.target_position, rev.CANSparkMax.ControlType.kPosition)
+        self.controller.setReference(self.target_position, rev.SparkMax.ControlType.kPosition)
         return False
     
     def getPosition(self):
