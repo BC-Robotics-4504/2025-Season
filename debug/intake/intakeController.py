@@ -2,21 +2,25 @@ from magicbot import StateMachine, state
 from enum import Enum
 from wpilib import Timer
 
-from debug.intake.intake import Launcher
+from debug.intake.intake import Intake
 from drivetrain import SwerveDrive
 
 from config import RobotConfig
 
 
 class IntakeActions(Enum):
-    RAISE_INTAKE = 1
-    LOWER_INTAKE = 2
-    RAISE_CORAL = 3
-    WAIT = 4
+    GROUND = 1
+    RAISE_CORAL = 2
+    SCORE_CORAL = 3
+    SCORE_ALGAE = 4
+    INTAKE_ALGAE = 5
+    SPINDOWN = 6
+    WAIT = 7
+    
 
 
 class IntakeController(StateMachine):
-    MODE_NAME = "Launcher Controller"
+    MODE_NAME = "Intake Controller"
     DEFAULT = False
 
     target_action = IntakeActions.WAIT
@@ -24,7 +28,7 @@ class IntakeController(StateMachine):
     Kp = -0.1
 
     RobotConfig: RobotConfig
-    Launcher: Launcher
+    Intake: Intake
 
     isEngaged = False
     isShooting = False
@@ -32,19 +36,26 @@ class IntakeController(StateMachine):
     timer = Timer()
     timer.start()
 
-    def lowerIntake(self):
-        self.target_action = IntakeActions.LOWER_INTAKE
-
-    def raiseIntake(self):
-        self.target_action = IntakeActions.RAISE_INTAKE
-
-    def raiseIntakeAmp(self):
-        self.target_action = IntakeActions.SHOOT_AMP
-        self.isShooting = False
-
-    def shootSpeaker(self):
-        self.target_action = IntakeActions.SHOOT_SPEAKER
+    def ground(self):
+        self.target_action = IntakeActions.GROUND
+    
+    def scoreCoral(self):
+        self.target_action = IntakeActions.SCORE_CORAL
         self.isShooting = True
+    
+    def scoreAlgae(self):
+        self.target_action = IntakeActions.SCORE_ALGAE
+        self.isShooting = True
+        
+    def spindownIntake(self):
+        self.target_action = IntakeActions.SPINDOWN
+        
+    def intakeAlgae(self):
+        self.target_action = IntakeActions.INTAKE_ALGAE
+
+    def raiseCoral(self):
+        self.target_action = IntakeActions.RAISE_CORAL
+
 
     def runLauncher(self):
         self.engage()
@@ -58,78 +69,69 @@ class IntakeController(StateMachine):
 
     @state(first=True)
     def __wait__(self):
+
+        if self.target_action == IntakeActions.GROUND:
+            self.next_state("__setGround__")
         
-
-        if self.target_action == IntakeActions.RAISE_INTAKE:
-            self.next_state("__raiseIntake__")
-
-        if self.target_action == IntakeActions.LOWER_INTAKE:
-            self.next_state("__lowerIntake__")
-
-        if self.target_action == IntakeActions.SHOOT_SPEAKER:
+        if self.target_action == IntakeActions.SPINDOWN:
+            self.next_state("__spindownIntake__")
+            
+        if self.target_action == IntakeActions.INTAKE_ALGAE:
+            self.next_state("__intakeAlgae__")
+            
+        if self.target_action == IntakeActions.SCORE_ALGAE:
+            self.next_state("__scoreAlgae")
+            self.isShooting == True
+                       
+        if self.target_action == IntakeActions.RAISE_CORAL:
             self.timer.restart()
-            self.next_state("__spinupLauncher__")
+            self.next_state("__raiseCoral__")
 
-        if self.target_action == IntakeActions.SHOOT_AMP:
-            self.next_state("__ampIntake__")
-
+        if self.target_action == IntakeActions.SCORE_CORAL:
+            self.next_state("__scoreCoral__")
+            self.isShooting == True 
+        
         self.target_action = IntakeActions.WAIT
 
     @state()
-    def __lowerIntake__(self):
-        self.Launcher.lowerIntake()
-        self.Launcher.spinIntakeIn()
+    def __setGround__(self):
+        self.Intake.defaultGround()
         self.next_state("__wait__")
 
     @state()
-    def __spinupLauncher__(self):
-        self.Launcher.spinupShooter()
-        if self.Launcher.isLauncherAtSpeed() or self.timer.hasElapsed(
+    def __intakeAlgae__(self):
+        self.Intake.grabAlgae()
+        if self.Intake.isCoralAtSpeed() or self.timer.hasElapsed(
             self.RobotConfig.shooting_abort_delay
         ):
             self.timer.restart()
-            self.next_state_now("__launchNoteSpeaker__")
+            self.next_state_now("__wait__")
 
     @state()
-    def __launchNoteSpeaker__(self):
-        self.Launcher.feedShooterSpeaker()
+    def __scoreAlgae__(self):
+        self.Intake.scoreAlgae()
         if self.timer.hasElapsed(self.RobotConfig.intake_feed_delay):
             self.timer.stop()
             self.isShooting = False
-            self.next_state("__spindownLauncher__")
-
+            self.next_state("__spindownIntake__")
+            
     @state()
-    def __spindownLauncher__(self):
-        self.Launcher.spindownLauncher()
-        self.Launcher.spindownIntake()
+    def __spindownIntake__(self):
+        self.Intake.spindownIntake()
         self.next_state("__wait__")
-
-    @state()
-    def __raiseIntake__(self):
-        self.Launcher.raiseIntake()
-        self.Launcher.spindownIntake()
-        self.next_state("__wait__")
-
-    @state()
-    def __ampIntake__(self):
-        self.Launcher.ampIntake()
-        if self.Launcher.isPositionedIntake():
-            self.timer.restart()
-            self.next_state("__launchNoteAmp__")
-
-    @state()
-    def __launchNoteAmp__(self):
-        self.Launcher.feedShooterAmp()
-        if self.timer.hasElapsed(self.RobotConfig.intake_feed_delay):
-            self.timer.stop()
+    
+    @state 
+    def scoreCoral(self):
+        self.Intake.scoreCoral() 
+        if self.timer.hasElapsed(self.coral_abort_time):
+            self.timer.stop
             self.isShooting = False
-            self.next_state("__raiseIntake__")
+            self.next_state("__spindownIntake__")
+            
+    @state()
+    def __raiseCoral__(self):
+        self.Intake.raiseCoral()
+        self.Intake.spindownIntake()
+        self.next_state("__wait__")
 
-    # @state(must_finish=True)
-    # def __alignLauncher__(self):
-    #     # FIXME: add PID loop here? (https://docs.limelightvision.io/docs/docs-limelight/tutorials/tutorial-aiming-with-visual-servoing)
-    #     target_angle = self.Vision.getTargetAngle()
-    #     if abs(target_angle) > 1.0:
-    #         self.SwerveDrive.goDistance(0, 0, target_angle/360)
-    #     else:
-    #         self.next_state('__spinupLauncher__')
+   

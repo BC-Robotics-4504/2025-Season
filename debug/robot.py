@@ -6,6 +6,9 @@ from magicbot import MagicRobot
 from config import RobotConfig
 
 from hmi import HMI
+from intake import IntakeController
+
+from intake
 from drivetrain import SwerveDrive, SparkMaxDriving, SparkMaxTurning
 from vision import Vision
 from vision import Limelight
@@ -18,6 +21,8 @@ class MyRobot(MagicRobot):
 
     # Swerve Drive Component Code
     SwerveDrive: SwerveDrive
+    
+    Intake: IntakeController
 
     # Controller Component Code
     HMI: HMI
@@ -64,6 +69,15 @@ class MyRobot(MagicRobot):
         self.SwerveDrive_FrontRightSpeedMotor = SparkMaxDriving(
             3, inverted=False, wheel_diameter=0.1143
         )
+        # Launcher Hardware Config
+        self.Launcher_LauncherSpinnerL = SparkMaxDualSpinner(10, inverted=True)
+        self.Launcher_LauncherSpinnerR = SparkMaxDualSpinner(12)
+
+        self.Launcher_IntakeSpinnerL = SparkMaxDualSpinner(14, inverted=True)
+        self.Launcher_IntakeSpinnerR = SparkMaxDualSpinner(13, inverted=True)
+
+        self.Launcher_IntakePivot = SparkMaxPivot(9, inverted=False, gear_ratio=4, 
+                                                  follower_canID=15)
 
         # HMI Hardware Config
         self.HMI_xbox = wpilib.XboxController(0)
@@ -79,6 +93,7 @@ class MyRobot(MagicRobot):
 
         Called once each time the robot enters teleoperated mode.
         """
+        
         self.SwerveDrive.clearFaults()
         pass
 

@@ -9,16 +9,13 @@ from pivot import SparkMaxPivot
 import math
 
 
-class Launcher:
+class Intake:
+
     RobotConfig: RobotConfig
 
     IntakePivot: SparkMaxPivot
 
-    IntakeSpinnerL: SparkMaxDualSpinner
-    IntakeSpinnerR: SparkMaxDualSpinner
-
-    LauncherSpinnerL: SparkMaxDualSpinner
-    LauncherSpinnerR: SparkMaxDualSpinner
+    CoralSpinner: SparkMaxDualSpinner
 
     LimitSwitch: wpilib.DigitalInput
 
@@ -26,7 +23,6 @@ class Launcher:
     target_intake_position = None
 
     current_spinner_speed = 0
-    
 
     def __init__(self):
         pass
@@ -43,22 +39,22 @@ class Launcher:
             return True
         return False
 
-    def intakeRaised(self):
+    def CoralRaised(self):
         """Launcher.isNoteInIntake() -> bool
 
         Check if a note is in the intake."""
         raised = not self.LimitSwitch.get()
         return raised
 
-    def lowerIntake(self):
+    def defaultGround(self):
         """Launcher.lowerIntake() -> None
 
-        Lower the intake."""
-        self.target_intake_position = self.RobotConfig.intake_lowered_position
-        self.IntakePivot.setPosition(self.RobotConfig.intake_lowered_position)
+        Set the intake to default ground position."""
+        self.target_intake_position = self.RobotConfig.intake_ground_position
+        self.IntakePivot.setPosition(self.RobotConfig.intake_ground_position)
         return None
 
-    def raiseIntake(self):
+    def raiseCoral(self):
         """Launcher.raiseIntake() -> None
 
         Raise the intake."""
@@ -66,74 +62,42 @@ class Launcher:
         self.IntakePivot.setPosition(self.RobotConfig.intake_raised_position)
         return None
 
-    def isLauncherAtSpeed(self):
+    def isCoralAtSpeed(self):
         """Launcher.isLauncherAtSpeed() -> bool
 
         Check if the launcher is at speed."""
-        err= (
+        err = (
             self.current_spinner_speed
             > self.RobotConfig.shooting_flywheel_threshold_speed
         )
-        
+
         if err:
             return True
         return False
-
-    def spinupShooter(self):
-        """Launcher.spinupShooter() -> None
-
-        Spin the launcher up."""
-        self.LauncherSpinnerL.setSpeed(self.RobotConfig.shooting_flywheel_speed)
-        self.LauncherSpinnerR.setSpeed(self.RobotConfig.shooting_flywheel_speed)
-        return None
-
-    def spindownLauncher(self):
-        """Launcher.spindownLauncher() -> None
-
-        Spin the launcher down."""
-        self.LauncherSpinnerL.setSpeed(0.0)
-        self.LauncherSpinnerR.setSpeed(0.0)
-        return None
-
-    def feedShooterSpeaker(self):
-        """Launcher.feedShooterSpeaker() -> None
-
-        Feed the shooter when shooter is spinning up to shoot speaker."""
-        self.IntakeSpinnerL.setSpeed(self.RobotConfig.intake_feed_speaker_speed)
-        self.IntakeSpinnerR.setSpeed(self.RobotConfig.intake_feed_speaker_speed)
-        return None
 
     def spindownIntake(self):
         """Launcher.spindownIntake() -> None
 
         Spin the intake down."""
-        self.IntakeSpinnerL.setSpeed(0.0)
-        self.IntakeSpinnerR.setSpeed(0.0)
+        self.CoralSpinner.setSpeed(0.0)
         return None
 
-    def spinIntakeIn(self):
+    def grabAlgae(self):
         """Launcher.spinIntakeIn() -> None
 
-        Spin the intake in."""
-        self.IntakeSpinnerL.setSpeed(self.RobotConfig.intake_reverse_rolling_speed)
-        self.IntakeSpinnerR.setSpeed(self.RobotConfig.intake_reverse_rolling_speed)
+        Spin the intake in to grab Algae."""
+        self.CoralSpinner.setSpeed(self.RobotConfig.intake_reverse_rolling_speed)
         return None
 
-    def ampIntake(self):
-        """Launcher.ampIntake() -> None
+    def scoreAlgae(self):
+        """Launcher.spinIntakeIn() -> None
 
-        Raise the intake to the amp position."""
-        self.target_intake_position = self.RobotConfig.intake_amp_position
-        self.IntakePivot.setPosition(self.RobotConfig.intake_amp_position)
+        Spin the intake in to grab Algae."""
+        self.CoralSpinner.setSpeed(self.RobotConfig.intake_forward_rolling_speed)
         return None
-
-    def feedShooterAmp(self):
-        """Launcher.feedShooterAmp() -> None
-
-        Feed the shooter when shooter is spinning up to shoot amp."""
-        self.IntakeSpinnerL.setSpeed(self.RobotConfig.intake_amp_shooting_speed + 0.02)
-        self.IntakeSpinnerR.setSpeed(self.RobotConfig.intake_amp_shooting_speed)
-        return None
+    
+    def scoreCoral(self):
+        self.CoralSpinner.setSpeed(self.RobotConfig.coral_score_speed)
 
     def execute(self):
         """Launcher.execute() -> None
