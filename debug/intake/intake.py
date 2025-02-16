@@ -25,9 +25,8 @@ class Launcher:
     current_intake_position = None
     target_intake_position = None
 
-    currentL_launcher_speed = 0
-    currentR_launcher_speed = 0
-    target_launcher_speed = 0
+    current_spinner_speed = 0
+    
 
     def __init__(self):
         pass
@@ -71,15 +70,12 @@ class Launcher:
         """Launcher.isLauncherAtSpeed() -> bool
 
         Check if the launcher is at speed."""
-        errL = (
-            self.currentL_launcher_speed
+        err= (
+            self.current_spinner_speed
             > self.RobotConfig.shooting_flywheel_threshold_speed
         )
-        errR = (
-            self.currentR_launcher_speed
-            > self.RobotConfig.shooting_flywheel_threshold_speed
-        )
-        if errL and errR:
+        
+        if err:
             return True
         return False
 
@@ -144,6 +140,6 @@ class Launcher:
 
         Updates position and speed of the Launcher."""
         self.current_intake_position = self.IntakePivot.getPosition()
-        self.currentL_launcher_speed = self.LauncherSpinnerL.getSpeed()
+        self.current_spinner_speed = self.LauncherSpinnerL.getSpeed()
         self.currentR_launcher_speed = self.LauncherSpinnerR.getSpeed()
         pass

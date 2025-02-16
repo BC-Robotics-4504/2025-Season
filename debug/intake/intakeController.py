@@ -2,25 +2,24 @@ from magicbot import StateMachine, state
 from enum import Enum
 from wpilib import Timer
 
-from launcher import Launcher
+from debug.intake.intake import Launcher
 from drivetrain import SwerveDrive
 
 from config import RobotConfig
 
 
-class LauncherActions(Enum):
+class IntakeActions(Enum):
     RAISE_INTAKE = 1
     LOWER_INTAKE = 2
-    SHOOT_SPEAKER = 3
-    SHOOT_AMP = 4
-    WAIT = 5
+    RAISE_CORAL = 3
+    WAIT = 4
 
 
-class LauncherController(StateMachine):
+class IntakeController(StateMachine):
     MODE_NAME = "Launcher Controller"
     DEFAULT = False
 
-    target_action = LauncherActions.WAIT
+    target_action = IntakeActions.WAIT
 
     Kp = -0.1
 
@@ -34,17 +33,17 @@ class LauncherController(StateMachine):
     timer.start()
 
     def lowerIntake(self):
-        self.target_action = LauncherActions.LOWER_INTAKE
+        self.target_action = IntakeActions.LOWER_INTAKE
 
     def raiseIntake(self):
-        self.target_action = LauncherActions.RAISE_INTAKE
+        self.target_action = IntakeActions.RAISE_INTAKE
 
     def raiseIntakeAmp(self):
-        self.target_action = LauncherActions.SHOOT_AMP
+        self.target_action = IntakeActions.SHOOT_AMP
         self.isShooting = False
 
     def shootSpeaker(self):
-        self.target_action = LauncherActions.SHOOT_SPEAKER
+        self.target_action = IntakeActions.SHOOT_SPEAKER
         self.isShooting = True
 
     def runLauncher(self):
@@ -59,23 +58,22 @@ class LauncherController(StateMachine):
 
     @state(first=True)
     def __wait__(self):
-        if self.Launcher.isNoteInIntake():
-            self.next_state_now("__raiseIntake__")
+        
 
-        if self.target_action == LauncherActions.RAISE_INTAKE:
+        if self.target_action == IntakeActions.RAISE_INTAKE:
             self.next_state("__raiseIntake__")
 
-        if self.target_action == LauncherActions.LOWER_INTAKE:
+        if self.target_action == IntakeActions.LOWER_INTAKE:
             self.next_state("__lowerIntake__")
 
-        if self.target_action == LauncherActions.SHOOT_SPEAKER:
+        if self.target_action == IntakeActions.SHOOT_SPEAKER:
             self.timer.restart()
             self.next_state("__spinupLauncher__")
 
-        if self.target_action == LauncherActions.SHOOT_AMP:
+        if self.target_action == IntakeActions.SHOOT_AMP:
             self.next_state("__ampIntake__")
 
-        self.target_action = LauncherActions.WAIT
+        self.target_action = IntakeActions.WAIT
 
     @state()
     def __lowerIntake__(self):
