@@ -49,7 +49,7 @@ class SparkMaxDualSpinner:
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.config = rev.SparkMaxConfig()
         self.config.inverted(not inverted)
-        self.config.setIdleMode(rev.SparkMax.IdleMode.kBrake)
+        self.config.setIdleMode(rev.SparkMaxConfig.IdleMode.kBrake)
         self.config.smartCurrentLimit(25)
         self.controller = self.motor.getClosedLoopController()
         self.encoder = self.motor.getAbsoluteEncoder()

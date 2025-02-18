@@ -6,10 +6,11 @@ from magicbot import MagicRobot
 from config import RobotConfig
 
 from hmi import HMI
-from intake import IntakeController
+from intake import IntakeController, Intake
 
-from intake
+from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
 from drivetrain import SwerveDrive, SparkMaxDriving, SparkMaxTurning
+
 from vision import Vision
 from vision import Limelight
 
@@ -22,13 +23,15 @@ class MyRobot(MagicRobot):
     # Swerve Drive Component Code
     SwerveDrive: SwerveDrive
     
-    Intake: IntakeController
+    Intake: Intake
+    IntakeController: IntakeController
 
     # Controller Component Code
     HMI: HMI
 
     # Vision Code
-    Vision: Vision
+    Limelight: Limelight
+    
 
     controlGain: float = 1
 
@@ -69,21 +72,20 @@ class MyRobot(MagicRobot):
         self.SwerveDrive_FrontRightSpeedMotor = SparkMaxDriving(
             3, inverted=False, wheel_diameter=0.1143
         )
-        # Launcher Hardware Config
-        self.Launcher_LauncherSpinnerL = SparkMaxDualSpinner(10, inverted=True)
-        self.Launcher_LauncherSpinnerR = SparkMaxDualSpinner(12)
+        
+        # Intake Hardware Config
+        self.Intake_OutputSpinner = SparkMaxDualSpinner(10, inverted=True)
 
-        self.Launcher_IntakeSpinnerL = SparkMaxDualSpinner(14, inverted=True)
-        self.Launcher_IntakeSpinnerR = SparkMaxDualSpinner(13, inverted=True)
-
-        self.Launcher_IntakePivot = SparkMaxPivot(9, inverted=False, gear_ratio=4, 
+        self.Intake_IntakePivot = SparkMaxPivot(9, inverted=False, gear_ratio=4, 
                                                   follower_canID=15)
-
+        
+        self.Intake_LimitSwitch = wpilib.DigitalInput(0)
+        
         # HMI Hardware Config
         self.HMI_xbox = wpilib.XboxController(0)
 
         # Vision Hardware Config
-        self.VisionLimelight = Limelight(name="limelight_front")
+        self.Vision_Limelight = Limelight(name="limelight_front")
 
     def disabledPeriodic(self):
         pass
@@ -93,7 +95,7 @@ class MyRobot(MagicRobot):
 
         Called once each time the robot enters teleoperated mode.
         """
-        
+        self.IntakeController.ground()
         self.SwerveDrive.clearFaults()
         pass
 
@@ -117,34 +119,34 @@ class MyRobot(MagicRobot):
         # SmartDashboard Setup
         # """
 
-        # # Add stuff to SmartDashboard
-        # wpilib.SmartDashboard.putNumber(
-        #     "LF Speed", self.SwerveDrive.SwerveDrive_FrontLeftSpeedMotor.getSpeed()
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "LF Angle",
-        #     self.SwerveDrive.SwerveDrive_FrontLeftAngleMotor.getAbsPosition(),
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "RF Speed", self.SwerveDrive.SwerveDrive_FrontRightSpeedMotor.getSpeed()
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "RF Angle",
-        #     self.SwerveDrive.SwerveDrive_FrontRightAngleMotor.getAbsPosition(),
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "LR Speed", self.SwerveDrive.SwerveDrive_RearLeftSpeedMotor.getSpeed()
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "LR Angle", self.SwerveDrive.SwerveDrive_RearLeftAngleMotor.getAbsPosition()
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "RR Speed", self.SwerveDrive.SwerveDrive_RearRightSpeedMotor.getSpeed()
-        # )
-        # wpilib.SmartDashboard.putNumber(
-        #     "RR Angle",
-        #     self.SwerveDrive.SwerveDrive_RearRightAngleMotor.getAbsPosition(),
-        # )
+        # Add stuff to SmartDashboard
+        wpilib.SmartDashboard.putNumber(
+            "LF Speed", self.SwerveDrive.SwerveDrive_FrontLeftSpeedMotor.getSpeed()
+        )
+        wpilib.SmartDashboard.putNumber(
+            "LF Angle",
+            self.SwerveDrive.SwerveDrive_FrontLeftAngleMotor.getAbsPosition(),
+        )
+        wpilib.SmartDashboard.putNumber(
+            "RF Speed", self.SwerveDrive.SwerveDrive_FrontRightSpeedMotor.getSpeed()
+        )
+        wpilib.SmartDashboard.putNumber(
+            "RF Angle",
+            self.SwerveDrive.SwerveDrive_FrontRightAngleMotor.getAbsPosition(),
+        )
+        wpilib.SmartDashboard.putNumber(
+            "LR Speed", self.SwerveDrive.SwerveDrive_RearLeftSpeedMotor.getSpeed()
+        )
+        wpilib.SmartDashboard.putNumber(
+            "LR Angle", self.SwerveDrive.SwerveDrive_RearLeftAngleMotor.getAbsPosition()
+        )
+        wpilib.SmartDashboard.putNumber(
+            "RR Speed", self.SwerveDrive.SwerveDrive_RearRightSpeedMotor.getSpeed()
+        )
+        wpilib.SmartDashboard.putNumber(
+            "RR Angle",
+            self.SwerveDrive.SwerveDrive_RearRightAngleMotor.getAbsPosition(),
+        )
 
 
 if __name__ == "__main__":

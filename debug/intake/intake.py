@@ -3,8 +3,8 @@ import wpilib
 
 from config import RobotConfig
 
-from spinner import SparkMaxDualSpinner
-from pivot import SparkMaxPivot
+from .spinner import SparkMaxDualSpinner
+from .pivot import SparkMaxPivot
 
 import math
 
@@ -15,7 +15,7 @@ class Intake:
 
     IntakePivot: SparkMaxPivot
 
-    CoralSpinner: SparkMaxDualSpinner
+    OutputSpinner: SparkMaxDualSpinner
 
     LimitSwitch: wpilib.DigitalInput
 
@@ -79,25 +79,25 @@ class Intake:
         """Launcher.spindownIntake() -> None
 
         Spin the intake down."""
-        self.CoralSpinner.setSpeed(0.0)
+        self.OutputSpinner.setSpeed(0.0)
         return None
 
     def grabAlgae(self):
         """Launcher.spinIntakeIn() -> None
 
         Spin the intake in to grab Algae."""
-        self.CoralSpinner.setSpeed(self.RobotConfig.intake_reverse_rolling_speed)
+        self.OutputSpinner.setSpeed(self.RobotConfig.intake_reverse_rolling_speed)
         return None
 
     def scoreAlgae(self):
         """Launcher.spinIntakeIn() -> None
 
         Spin the intake in to grab Algae."""
-        self.CoralSpinner.setSpeed(self.RobotConfig.intake_forward_rolling_speed)
+        self.OutputSpinner.setSpeed(self.RobotConfig.intake_forward_rolling_speed)
         return None
     
     def scoreCoral(self):
-        self.CoralSpinner.setSpeed(self.RobotConfig.coral_score_speed)
+        self.OutputSpinner.setSpeed(self.RobotConfig.coral_score_speed)
 
     def execute(self):
         """Launcher.execute() -> None

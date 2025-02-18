@@ -6,7 +6,6 @@ class Vision:
     RobotConfig: RobotConfig
 
     LimeLight: Limelight
-    LimeLightFront: Limelight
 
     target_distance = 0.0
     horizontal_offset = 0.0

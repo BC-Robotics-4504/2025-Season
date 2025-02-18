@@ -2,5 +2,6 @@
 from .intakeController import IntakeController
 from .pivot import SparkMaxPivot
 from .spinner import SparkMaxDualSpinner
-__all__ = ["IntakeController", "SparkMaxPivot", "SparkMaxDualSpinner"]
+from .intake import Intake
+__all__ = ["IntakeController", "SparkMaxPivot", "SparkMaxDualSpinner", "Intake"]
 

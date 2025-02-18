@@ -2,8 +2,7 @@ from magicbot import StateMachine, state
 from enum import Enum
 from wpilib import Timer
 
-from debug.intake.intake import Intake
-from drivetrain import SwerveDrive
+from .intake import Intake
 
 from config import RobotConfig
 
@@ -80,7 +79,7 @@ class IntakeController(StateMachine):
             self.next_state("__intakeAlgae__")
             
         if self.target_action == IntakeActions.SCORE_ALGAE:
-            self.next_state("__scoreAlgae")
+            self.next_state("__scoreAlgae__")
             self.isShooting == True
                        
         if self.target_action == IntakeActions.RAISE_CORAL:

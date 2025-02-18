@@ -57,7 +57,7 @@ class SparkMaxPivot:
         self.config = rev.SparkMaxConfig()
 
         self.config.inverted(inverted)
-        self.config.setIdleMode(rev.SparkMax.IdleMode.kBrake)
+        self.config.setIdleMode(rev.SparkMaxConfig.IdleMode.kBrake)
         self.config.smartCurrentLimit(40)
 
         self.encoder = self.motor.getAbsoluteEncoder()
@@ -67,11 +67,10 @@ class SparkMaxPivot:
         self.config.absoluteEncoder.positionConversionFactor(
             2 * math.pi / self.gear_ratio
         )
+
         self.config.absoluteEncoder.velocityConversionFactor(0.104719755119659771)
 
-        self.encoder.setVelocityConversionFactor(0.104719755119659771)
-
-        self.config.closedLoop.setFeedbackSensor(self.encoder)
+        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
         self.config.closedLoop.positionWrappingEnabled(False)
         self.config.closedLoop.positionWrappingMinInput(0)
         self.config.closedLoop.positionWrappingMaxInput(2 * math.pi / self.gear_ratio)
