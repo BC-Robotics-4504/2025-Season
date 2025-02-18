@@ -17,8 +17,6 @@ class Intake:
 
     OutputSpinner: SparkMaxDualSpinner
 
-    LimitSwitch: wpilib.DigitalInput
-
     current_intake_position = None
     target_intake_position = None
 
@@ -43,7 +41,7 @@ class Intake:
         """Launcher.isNoteInIntake() -> bool
 
         Check if a note is in the intake."""
-        raised = not self.LimitSwitch.get()
+        raised = not self.IntakePivot.getLimitSwitch()
         return raised
 
     def defaultGround(self):

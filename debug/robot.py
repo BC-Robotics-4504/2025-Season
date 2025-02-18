@@ -79,7 +79,6 @@ class MyRobot(MagicRobot):
         self.Intake_IntakePivot = SparkMaxPivot(9, inverted=False, gear_ratio=4, 
                                                   follower_canID=15)
         
-        self.Intake_LimitSwitch = wpilib.DigitalInput(0)
         
         # HMI Hardware Config
         self.HMI_xbox = wpilib.XboxController(0)
