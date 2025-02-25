@@ -60,6 +60,7 @@ class SparkMaxPivot:
         self.config.setIdleMode(rev.SparkMaxConfig.IdleMode.kBrake)
         self.config.smartCurrentLimit(40)
         
+        # Limit Switch
         self.config.limitSwitch.setSparkMaxDataPortConfig()
         
 
@@ -144,7 +145,7 @@ class SparkMaxPivot:
         rotation = self.encoder.getPosition()
         return rotation
     
-    def getLimitSwitch(self):
+    def getForwardLimitSwitch(self):
         return self.motor.getForwardLimitSwitch().get()
 
     def atPosition(self, tolerance=0.05):
