@@ -1,4 +1,4 @@
-# 2025-Season: Smokey Mountain Regional
+# 2025-Season: Smoky Mountain Regional
 
 ## Robotpy Setup
 
