@@ -61,7 +61,7 @@ class SparkMaxDriving:
 
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.config = rev.SparkMaxConfig()
-
+        
         self.config.smartCurrentLimit(60)
         self.config.absoluteEncoder.positionConversionFactor(0.05077956125529683)
 
@@ -71,9 +71,11 @@ class SparkMaxDriving:
         self.config.closedLoop.setFeedbackSensor(
             rev.ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder
         )
+        
         self.config.closedLoop.pidf(
             self.kP0, self.kI0, self.kD0, self.kFF0, rev.ClosedLoopSlot.kSlot0
         )
+        
         self.config.closedLoop.pidf(
             self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1
         )
@@ -96,7 +98,7 @@ class SparkMaxDriving:
 
         Gets the current speed of the swerve modules
         """
-        vel = -self.motor.getEncoder().getVelocity  # rpm
+        vel = -self.motor.getEncoder().getVelocity()  # rpm
         return vel
 
     def setSpeed(self, speed):
