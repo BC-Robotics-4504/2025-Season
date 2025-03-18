@@ -7,7 +7,8 @@ from phoenix6.configs import Pigeon2Configuration
 
 from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Translation2d, Rotation2d, Pose2d
-from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds, SwerveModuleState
+from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds, SwerveModuleState, SwerveModulePosition
+from wpimath.estimator import SwerveDrive4PoseEstimator
 
 from wpilib import DriverStation
 
@@ -47,13 +48,13 @@ class SwerveDrive:
     def __init__(self):
 
         # TODO: update robotpy config in main file
-
         imu_config = Pigeon2Configuration()
         imu_config.mount_pose.mount_pose_yaw = 0
         imu_config.mount_pose.mount_pose_pitch = 0
         imu_config.mount_pose.mount_pose_roll = 90
         self.IMU.ConfigAllSettings(imu_config)
-        
+
+        # Setup kinematics module
         frontLeftLocation = Translation2d(0.381, 0.381)
         frontRightLocation = Translation2d(0.381, -0.381)
         rearLeftLocation = Translation2d(-0.381, 0.381)
@@ -66,11 +67,22 @@ class SwerveDrive:
             rearRightLocation
             )
         
+        # setup pose estimator
+        self.poseEstimator = SwerveDrive4PoseEstimator(self.kinematics, 
+                                                       Rotation2d(self.IMU.get_accum_gyro_x()), # TODO: Check me
+                                                       [self.__flSwervePos__(),
+                                                        self.__frSwervePos__(),
+                                                        self.__rlSwervePos__(),
+                                                        self.__rrSwervePos__()],
+                                                       Pose2d(0, 0, 0) # TODO: Update me--will need to change for each auto configuration
+                                                       )
+        
+        
         config = RobotConfig.fromGUISettings()
         # https://github.com/mjansen4857/pathplanner/blob/main/examples/java/src/main/java/frc/robot/subsystems/SwerveSubsystem.java
         AutoBuilder.configure(
-            self.getPose,
-            self.resetPose,
+            self.poseEstimator.getEstimatedPosition,
+            self.poseEstimator.resetPose,
             self.getRobotRelativeSpeeds,
             lambda speeds, feedforwards: self.driveRobotRelative(speeds),
             PPHolonomicDriveController(
@@ -82,27 +94,37 @@ class SwerveDrive:
             self
         )        
         
+    def __flSwervePos__(self):
+        ang = self.frontLeftAngleMotor.getAbsPosition()
+        dist = self.frontLeftSpeedMotor.getDistance()
+        return SwerveModulePosition(dist, Rotation2d(ang))
+    
+    def __frSwervePos__(self):
+        ang = self.frontRightAngleMotor.getAbsPosition()
+        dist = self.frontRightSpeedMotor.getDistance()
+        return SwerveModulePosition(dist, Rotation2d(ang))
+    
+    def __rlSwervePos__(self):
+        ang = self.rearLeftAngleMotor.getAbsPosition()
+        dist = self.rearLeftSpeedMotor.getDistance()
+        return SwerveModulePosition(dist, Rotation2d(ang))
+    
+    def __rrSwervePos__(self):
+        ang = self.rearRightAngleMotor.getAbsPosition()
+        dist = self.rearRightSpeedMotor.getDistance()
+        return SwerveModulePosition(dist, Rotation2d(ang))
+    
+    def updatePose(self):
+        self.poseEstimator.update(Rotation2d(self.IMU.get_accum_gyro_x()), # TODO: Check me
+                                    [self.__flSwervePos__(),
+                                    self.__frSwervePos__(),
+                                    self.__rlSwervePos__(),
+                                    self.__rrSwervePos__()]
+        )
+        
+        
     def shouldFlipPath(self):
         return DriverStation.getgetAlliance() == DriverStation.Alliance.kRed
-    
-    
-    def getPose(self):
-        ''' C++
-        inline const frc::Pose2d& getPose() const {
-        return odometry.GetPose();
-        }
-        '''
-        # TODO: https://github.com/morgil/madgwick_py
-        return Pose2d(10, 5, Rotation2d.fromDegrees(180))
-    
-    def resetPose(self):
-        ''' C++
-        inline void resetPose(const frc::Pose2d& pose) {
-            odometry.ResetPosition(gyro.getRotation2d(), {flModule.getPosition(), frModule.getPosition(), blModule.getPosition(), brModule.getPosition()}, pose);
-        }
-        '''
-        
-        return
     
     def driveRobotRelativeSpeeds(self, chassisSpeeds:ChassisSpeeds):
         fl, fr, rl, rr = self.kinematics.toSwerveModuleStates(chassisSpeeds)
@@ -197,3 +219,5 @@ class SwerveDrive:
         if self.move_changed:
             self.driveRobotRelativeSpeeds(self.target_chassis_speeds)
             self.move_changed = False
+            
+        self.updatePose()

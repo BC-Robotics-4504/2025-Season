@@ -111,6 +111,9 @@ class SparkMaxDriving:
             speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
         )  # NOTE: Changed this.
         return None
+    
+    def getDistance(self):
+        return self.motor.getEncoder().getPosition()
 
     def atDistance(self):
         """SparkMaxDriving.atDistance()

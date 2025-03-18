@@ -105,5 +105,4 @@ class SparkMaxTurning:
 
         Gets the absolute positon of the encoder
         """
-        rotation = self.encoder.getPosition()
-        return rotation
+        return self.encoder.getPosition()
