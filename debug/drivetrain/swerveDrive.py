@@ -70,10 +70,10 @@ class SwerveDrive:
         # setup pose estimator
         self.poseEstimator = SwerveDrive4PoseEstimator(self.kinematics, 
                                                        Rotation2d(self.IMU.get_accum_gyro_x()), # TODO: Check me
-                                                       [self.__flSwervePos__(),
-                                                        self.__frSwervePos__(),
-                                                        self.__rlSwervePos__(),
-                                                        self.__rrSwervePos__()],
+                                                       [self.flSwervePos,
+                                                        self.frSwervePos,
+                                                        self.rlSwervePos,
+                                                        self.rrSwervePos],
                                                        Pose2d(0, 0, 0) # TODO: Update me--will need to change for each auto configuration
                                                        )
         
@@ -93,23 +93,27 @@ class SwerveDrive:
             self.shouldFlipPath,
             self
         )        
-        
-    def __flSwervePos__(self):
+    
+    @property   
+    def flSwervePos(self):
         ang = self.frontLeftAngleMotor.getAbsPosition()
         dist = self.frontLeftSpeedMotor.getDistance()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
-    def __frSwervePos__(self):
+    @property
+    def frSwervePos(self):
         ang = self.frontRightAngleMotor.getAbsPosition()
         dist = self.frontRightSpeedMotor.getDistance()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
-    def __rlSwervePos__(self):
+    @property
+    def rlSwervePos(self):
         ang = self.rearLeftAngleMotor.getAbsPosition()
         dist = self.rearLeftSpeedMotor.getDistance()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
-    def __rrSwervePos__(self):
+    @property
+    def rrSwervePos(self):
         ang = self.rearRightAngleMotor.getAbsPosition()
         dist = self.rearRightSpeedMotor.getDistance()
         return SwerveModulePosition(dist, Rotation2d(ang))
