@@ -55,10 +55,10 @@ class SwerveDrive:
         self.IMU.ConfigAllSettings(imu_config)
 
         # Setup kinematics module
-        frontLeftLocation = Translation2d(0.381, 0.381)
-        frontRightLocation = Translation2d(0.381, -0.381)
-        rearLeftLocation = Translation2d(-0.381, 0.381)
-        rearRightLocation = Translation2d(-0.381, -0.381)
+        frontLeftLocation = Translation2d(0.381, 0.381) # TODO: update me
+        frontRightLocation = Translation2d(0.381, -0.381) # TODO: update me
+        rearLeftLocation = Translation2d(-0.381, 0.381) # TODO: update me
+        rearRightLocation = Translation2d(-0.381, -0.381) # TODO: update me
         
         self.kinematics = SwerveDrive4Kinematics(
             frontLeftLocation, 
@@ -81,8 +81,8 @@ class SwerveDrive:
         config = RobotConfig.fromGUISettings()
         # https://github.com/mjansen4857/pathplanner/blob/main/examples/java/src/main/java/frc/robot/subsystems/SwerveSubsystem.java
         AutoBuilder.configure(
-            self.poseEstimator.getEstimatedPosition,
-            self.poseEstimator.resetPose,
+            self.getPose,
+            self.resetPose,
             self.getRobotRelativeSpeeds,
             lambda speeds, feedforwards: self.driveRobotRelative(speeds),
             PPHolonomicDriveController(
@@ -92,7 +92,13 @@ class SwerveDrive:
             config,
             self.shouldFlipPath,
             self
-        )        
+        )  
+        
+    def getPose(self):
+        return self.poseEstimator.getEstimatedPosition()
+        
+    def resetPose(self):
+        self.poseEstimator.resetPose()
     
     @property   
     def flSwervePos(self):
