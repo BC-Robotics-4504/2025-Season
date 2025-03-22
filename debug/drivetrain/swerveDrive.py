@@ -5,8 +5,6 @@ from .swerveModule import SwerveModule
 from phoenix6.hardware import Pigeon2
 from phoenix6.configs import Pigeon2Configuration 
 
-import math
-
 from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Translation2d, Rotation2d, Pose2d
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds, SwerveModuleState, SwerveModulePosition
@@ -41,7 +39,7 @@ class SwerveDrive:
     # RobotConfig: RobotConfig    
     config: SwerveConfig
 
-    fl_mod: SwerveModule = None
+    fl_mod: SwerveModule
     fr_mod: SwerveModule
     rl_mod: SwerveModule
     rr_mod: SwerveModule
@@ -111,9 +109,6 @@ class SwerveDrive:
         imu_config.mount_pose.mount_pose_pitch = 0
         imu_config.mount_pose.mount_pose_roll = 90
         # self.IMU.configurator.apply(imu_config)
-        
-    def __initSwerveModule__(self, CAN_id_turn, CAN_id_direction, z_offset_turn):
-        return
         
     def getPose(self):
         return self.poseEstimator.getEstimatedPosition()

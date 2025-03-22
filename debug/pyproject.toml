@@ -18,11 +18,11 @@ robotpy_extras = [
     # "navx",
     # "pathplannerlib",
     "phoenix6",
-    # "rev",
+    "rev",
     # "romi",
     # "sim",
     # "xrp",
 ]
 
 # Other pip packages to install
-requires = []
+requires = ['numpy']

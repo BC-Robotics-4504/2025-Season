@@ -60,7 +60,7 @@ class MyRobot(MagicRobot):
         Called once each time the robot enters teleoperated mode.
         """
         # self.IntakeController.ground()
-        self.SwerveDrive.clearFaults()
+        self.swerve.clearFaults()
         pass
 
     def teleopPeriodic(self):
@@ -72,7 +72,7 @@ class MyRobot(MagicRobot):
         # Move drivetrain based on Left X/Y and Right X/Y controller inputs
         
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
-        self.SwerveDrive.move(Lx, Ly, Rx)
+        self.swerve.move(Lx, Ly, Rx)
 
         # """
         # SmartDashboard Setup
