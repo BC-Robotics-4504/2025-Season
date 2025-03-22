@@ -1,6 +1,5 @@
 import rev
 import math
-from config import RobotConfig
 
 class SwerveModule:
     turnMotor: rev.SparkMax
@@ -92,10 +91,6 @@ class SparkMaxDriving:
     minVel = 0
     allowedErr = 0
 
-    driveFactor = (RobotConfig.drive_wheel_diameter * math.pi) / (
-        RobotConfig.drivingMotorReduction
-    )
-
     targetDistance = 5.5
     tolerance = 0.1
 
@@ -124,7 +119,7 @@ class SparkMaxDriving:
         self.config.smartCurrentLimit(60)
         self.config.absoluteEncoder.positionConversionFactor(0.05077956125529683)
 
-        self.config.absoluteEncoder.velocityConversionFactor(self.driveFactor)
+        self.config.absoluteEncoder.velocityConversionFactor(1) #TODO: update me!!!!
         self.motor.getEncoder().setPosition(0)
 
         self.config.closedLoop.setFeedbackSensor(
