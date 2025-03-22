@@ -1,11 +1,12 @@
-from .sparkmaxDrive import SparkMaxDriving
-from .sparkmaxTurning import SparkMaxTurning
+from collections import namedtuple
+from swerveModule import SwerveModule
 # from config import RobotConfig
 
 from phoenix6.hardware import Pigeon2
-from phoenix6.configs import Pigeon2Configuration
+from phoenix6.configs import Pigeon2Configuration 
 
 from wpimath.filter import SlewRateLimiter
+from wpimath.units import radians
 from wpimath.geometry import Translation2d, Rotation2d, Pose2d
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds, SwerveModuleState, SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
@@ -16,49 +17,58 @@ from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
 from pathplannerlib.config import RobotConfig, PIDConstants
 
+SwerveConfig = namedtuple('config',
+                          ['fl_CAN',
+                           'fl_zoffset',
+                           'fl_loc',
+                          'fr_CAN',
+                          'fr_zoffset',
+                          'fr_loc',
+                          'rl_CAN',
+                          'rl_zoffset',
+                          'rl_loc',
+                          'rr_CAN',
+                          'rr_zoffset',
+                          'rr_loc',
+                          'wheel_diameter',
+                          'CAN_id_imu'])
+
 
 class SwerveDrive:
     """SwerveDrive Class"""
 
-    # RobotConfig: RobotConfig
-    
-    IMU: Pigeon2
+    # RobotConfig: RobotConfig    
+    config: SwerveConfig
 
-    frontLeftAngleMotor: SparkMaxTurning
-    frontLeftSpeedMotor: SparkMaxDriving
-
-    rearLeftAngleMotor: SparkMaxTurning
-    rearLeftSpeedMotor: SparkMaxDriving
-
-    rearRightAngleMotor: SparkMaxTurning
-    rearRightSpeedMotor: SparkMaxDriving
-
-    frontRightAngleMotor: SparkMaxTurning
-    frontRightSpeedMotor: SparkMaxDriving
+    fl_mod: SwerveModule
+    fr_mod: SwerveModule
+    rl_mod: SwerveModule
+    rr_mod: SwerveModule
     
     move_changed: bool = False
     distance_changed: bool = False
     target_chassis_speeds:ChassisSpeeds = ChassisSpeeds(0, 0, 0)
-    current_pose: Pose2d(0, 0, 0)
+    current_pose:Pose2d = Pose2d(0, 0, 0)
 
     LxSlewRateLimiter = SlewRateLimiter(0.5)
     LySlewRateLimiter = SlewRateLimiter(0.5)
     RxSlewRateLimiter = SlewRateLimiter(1)
     
-    def __init__(self):
-
+    def __init__(self) -> None:
+        
         # TODO: update robotpy config in main file
-        imu_config = Pigeon2Configuration()
-        imu_config.mount_pose.mount_pose_yaw = 0
-        imu_config.mount_pose.mount_pose_pitch = 0
-        imu_config.mount_pose.mount_pose_roll = 90
-        self.IMU.ConfigAllSettings(imu_config)
-
+        self.__initIMU__()
+        self.fr_mod = SwerveModule(self.config.fl_CAN, self.config.fl_zoffset, self.config.wheel_diameter)
+        self.fl_mod = SwerveModule(self.config.fr_CAN, self.config.fr_zoffset, self.config.wheel_diameter)
+        self.rl_mod = SwerveModule(self.config.rl_CAN, self.config.rl_zoffset, self.config.wheel_diameter)
+        self.rr_mod = SwerveModule(self.config.rr_CAN, self.config.rr_zoffset, self.config.wheel_diameter)
+        self.IMU = Pigeon2(self.config.CAN_id_imu)
+        
         # Setup kinematics module
-        frontLeftLocation = Translation2d(0.381, 0.381) # TODO: update me
-        frontRightLocation = Translation2d(0.381, -0.381) # TODO: update me
-        rearLeftLocation = Translation2d(-0.381, 0.381) # TODO: update me
-        rearRightLocation = Translation2d(-0.381, -0.381) # TODO: update me
+        frontLeftLocation = Translation2d(self.config.fl_loc[0], self.config.fl_loc[1]) # TODO: update me
+        frontRightLocation = Translation2d(self.config.fr_loc[0], self.config.fr_loc[1]) # TODO: update me
+        rearLeftLocation = Translation2d(self.config.rl_loc[0], self.config.rl_loc[1]) # TODO: update me
+        rearRightLocation = Translation2d(self.config.rr_loc[0], self.config.rr_loc[1]) # TODO: update me
         
         self.kinematics = SwerveDrive4Kinematics(
             frontLeftLocation, 
@@ -69,7 +79,7 @@ class SwerveDrive:
         
         # setup pose estimator
         self.poseEstimator = SwerveDrive4PoseEstimator(self.kinematics, 
-                                                       Rotation2d(self.IMU.get_accum_gyro_x()), # TODO: Check me
+                                                       Rotation2d(self.IMU.get_acceleration_x().value), # TODO: Check me
                                                        [self.flSwervePos,
                                                         self.frSwervePos,
                                                         self.rlSwervePos,
@@ -94,6 +104,16 @@ class SwerveDrive:
             self
         )  
         
+    def __initIMU__(self):
+        imu_config = Pigeon2Configuration()
+        imu_config.mount_pose.mount_pose_yaw = 0
+        imu_config.mount_pose.mount_pose_pitch = 0
+        imu_config.mount_pose.mount_pose_roll = 90
+        self.IMU.configurator.apply(imu_config)
+        
+    def __initSwerveModule__(self, CAN_id_turn, CAN_id_direction, z_offset_turn):
+        return
+        
     def getPose(self):
         return self.poseEstimator.getEstimatedPosition()
         
@@ -102,26 +122,28 @@ class SwerveDrive:
     
     @property   
     def flSwervePos(self):
-        ang = self.frontLeftAngleMotor.getAbsPosition()
-        dist = self.frontLeftSpeedMotor.getDistance()
+        # ang = self.frontLeftAngleMotor.getAbsPosition()
+        # dist = self.frontLeftSpeedMotor.getDistance()
+        ang = self.fl_mod.getAngle()
+        dist = self.fl_mod.getSpeed()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
     @property
     def frSwervePos(self):
-        ang = self.frontRightAngleMotor.getAbsPosition()
-        dist = self.frontRightSpeedMotor.getDistance()
+        ang = self.fr_mod.getAngle()
+        dist = self.fr_mod.getSpeed()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
     @property
     def rlSwervePos(self):
-        ang = self.rearLeftAngleMotor.getAbsPosition()
-        dist = self.rearLeftSpeedMotor.getDistance()
+        ang = self.rl_mod.getAngle()
+        dist = self.rl_mod.getSpeed()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
     @property
     def rrSwervePos(self):
-        ang = self.rearRightAngleMotor.getAbsPosition()
-        dist = self.rearRightSpeedMotor.getDistance()
+        ang = self.rr_mod.getAngle()
+        dist = self.rr_mod.getSpeed()
         return SwerveModulePosition(dist, Rotation2d(ang))
     
     def updatePose(self):

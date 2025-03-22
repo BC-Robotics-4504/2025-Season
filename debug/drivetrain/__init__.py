@@ -1,6 +1,5 @@
 # __init__.py
-from .swerveDrive import SwerveDrive
-from .sparkmaxDrive import SparkMaxDriving
-from .sparkmaxTurning import SparkMaxTurning
+from .swerveDrive import SwerveDrive, SwerveConfig
 
-__all__ = ["SwerveDrive", "SparkMaxTurning", "SparkMaxDriving"]
+
+__all__ = ["SwerveDrive", "SwerveConfig"]

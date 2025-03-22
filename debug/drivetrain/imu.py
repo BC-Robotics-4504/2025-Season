@@ -1,3 +1,4 @@
+from collections import namedtuple
 from phoenix6.hardware import Pigeon2
 from phoenix6.configs import Pigeon2Configuration
 
@@ -7,10 +8,13 @@ from wpilib import Timer
 import numpy as np
 from numpy.linalg import norm
 
+imuConfig = namedtuple('imuConfig', 
+                       'CAN_id')
+
 class IMU:
     """ IMU Class"""
     
-    IMU: Pigeon2
+    imuConfig: imuConfig
     
     timer:Timer|None
     
@@ -62,16 +66,11 @@ class IMU:
         mz = self.IMU.get_magnetic_field_z()
         m = np.array([mx, my, mz], dtype=float).flatten()
         m /= norm(m) # Normalise magnetometer measurement
-        
-        self.IMU.
-        
-        
-        
         return
     
     def __getTimeSinceUpdate__(self):
         # self.current_time 
-        self.IMU.
+        self.IMU.get_up_time()
         return
     
     def execute(self):
