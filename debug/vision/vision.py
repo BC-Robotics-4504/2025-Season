@@ -1,10 +1,8 @@
-from .limelight import *
+from .limelight import Limelight
 from .calcs import *
-from config import RobotConfig
 
 class Vision:
-    RobotConfig: RobotConfig
-    LimeLight: Limelight
+    LimeLight: Limelight = None
 
     target_distance = 0.0
     horizontal_offset = 0.0

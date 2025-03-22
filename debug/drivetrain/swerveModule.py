@@ -26,7 +26,7 @@ class SwerveModule:
         return False
 
     def getAngle(self):
-        return self.getAbsPosition()
+        return self.turnMotor.getAbsPosition()
     
     def getSpeed(self):
         return self.driveMotor.getSpeed()
@@ -34,6 +34,32 @@ class SwerveModule:
     def setSpeed(self, speed:float):
         self.driveMotor.setSpeed(speed)
         return None
+    
+    def clearFaults(self):
+        self.driveMotor.clearFaults(
+        self.turnMotor.clearFaults()
+        )
+        return None
+    
+    def resetEncoder(self):
+        """Reset Swerve Module Encoders
+        
+        returns None"""
+        
+        self.driveMotor.getEncoder().setPosition(0)
+        self.turnMotor.getEncoder().setPosition(0)
+        
+    # def atDistance(self):
+    #     """SparkMaxDriving.atDistance()
+
+    #     Checks if the robot has travlled to the specfied distance"""
+    #     currentDistance = self.driveMotor.
+    #     if abs(currentDistance - self.driveMot) <= self.tolerance:
+    #         return True
+
+    #     return False
+        
+
 
 
 class SparkMaxDriving:

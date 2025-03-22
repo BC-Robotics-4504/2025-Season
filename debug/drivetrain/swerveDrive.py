@@ -1,12 +1,13 @@
 from collections import namedtuple
-from swerveModule import SwerveModule
+from .swerveModule import SwerveModule
 # from config import RobotConfig
 
 from phoenix6.hardware import Pigeon2
 from phoenix6.configs import Pigeon2Configuration 
 
+import math
+
 from wpimath.filter import SlewRateLimiter
-from wpimath.units import radians
 from wpimath.geometry import Translation2d, Rotation2d, Pose2d
 from wpimath.kinematics import SwerveDrive4Kinematics, ChassisSpeeds, SwerveModuleState, SwerveModulePosition
 from wpimath.estimator import SwerveDrive4PoseEstimator
@@ -40,7 +41,7 @@ class SwerveDrive:
     # RobotConfig: RobotConfig    
     config: SwerveConfig
 
-    fl_mod: SwerveModule
+    fl_mod: SwerveModule = None
     fr_mod: SwerveModule
     rl_mod: SwerveModule
     rr_mod: SwerveModule
@@ -48,16 +49,16 @@ class SwerveDrive:
     move_changed: bool = False
     distance_changed: bool = False
     target_chassis_speeds:ChassisSpeeds = ChassisSpeeds(0, 0, 0)
-    current_pose:Pose2d = Pose2d(0, 0, 0)
+    current_pose: Pose2d = Pose2d(0, 0, 0)
 
     LxSlewRateLimiter = SlewRateLimiter(0.5)
     LySlewRateLimiter = SlewRateLimiter(0.5)
     RxSlewRateLimiter = SlewRateLimiter(1)
     
-    def __init__(self) -> None:
-        
+    def __init__(self, config: SwerveConfig) -> None:
         # TODO: update robotpy config in main file
         self.__initIMU__()
+        self.config = config
         self.fr_mod = SwerveModule(self.config.fl_CAN, self.config.fl_zoffset, self.config.wheel_diameter)
         self.fl_mod = SwerveModule(self.config.fr_CAN, self.config.fr_zoffset, self.config.wheel_diameter)
         self.rl_mod = SwerveModule(self.config.rl_CAN, self.config.rl_zoffset, self.config.wheel_diameter)
@@ -109,7 +110,7 @@ class SwerveDrive:
         imu_config.mount_pose.mount_pose_yaw = 0
         imu_config.mount_pose.mount_pose_pitch = 0
         imu_config.mount_pose.mount_pose_roll = 90
-        self.IMU.configurator.apply(imu_config)
+        # self.IMU.configurator.apply(imu_config)
         
     def __initSwerveModule__(self, CAN_id_turn, CAN_id_direction, z_offset_turn):
         return
@@ -161,38 +162,36 @@ class SwerveDrive:
     def driveRobotRelativeSpeeds(self, chassisSpeeds:ChassisSpeeds):
         fl, fr, rl, rr = self.kinematics.toSwerveModuleStates(chassisSpeeds)
         
-        self.frontLeftAngleMotor.setAbsPosition(fl.angle)
-        self.frontLeftSpeedMotor.setSpeed(fl.speed)
+        self.fl_mod.setAngle(fl.angle)
+        self.fl_mod.setSpeed(fl.speed)
         
-        self.frontRightAngleMotor.setAbsPosition(fr.angle)
-        self.frontRightSpeedMotor.setSpeed(fr.speed)
+        self.fr_mod.setAngle(fr.angle)
+        self.fr_mod.setSpeed(fr.speed)
 
-        self.rearLeftAngleMotor.setAbsPosition(rl.angle)
-        self.rearLeftSpeedMotor.setSpeed(rl.speed)
+        self.rl_mod.setAngle(rl.angle)
+        self.rl_mod.setSpeed(rl.speed)
 
-        self.rearRightAngleMotor.setAbsPosition(rr.angle)
-        self.rearRightSpeedMotor.setSpeed(rr.speed)
+        self.rr_mod.setAngle(rr.angle)
+        self.rr_mod.setSpeed(rr.speed)
         
         
     def getRobotRelativeSpeeds(self):
-        fl = SwerveModuleState(self.frontLeftSpeedMotor.getSpeed, self.frontLeftAngleMotor.getAbsPosition)
-        fr = SwerveModuleState(self.frontRightSpeedMotor.getSpeed, self.frontRightAngleMotor.getAbsPosition)
-        rl = SwerveModuleState(self.rearLeftSpeedMotor.getSpeed, self.rearLeftAngleMotor.getAbsPosition)
-        rr = SwerveModuleState(self.rearRightSpeedMotor.getSpeed, self.rearRightAngleMotor.getAbsPosition)        
+        fl = SwerveModuleState(self.fl_mod.getSpeed(), self.fl_mod.getAngle())
+        fr = SwerveModuleState(self.fr_mod.getSpeed(), self.fr_mod.getAngle())
+        rl = SwerveModuleState(self.rl_mod.getSpeed(), self.rl_mod.getAngle)
+        rr = SwerveModuleState(self.rr_mod.getSpeed(), self.rr_mod.getAngle())        
         return self.kinematics.toChassisSpeeds([fl, fr, rl, rr])
 
     def clearFaults(self):
         """SwerveDrive.clearFaults()
         Clears faults on all of the SparkMax modules
         """
-        self.frontLeftAngleMotor.clearFaults()
-        self.frontLeftSpeedMotor.clearFaults()
-        self.rearLeftAngleMotor.clearFaults()
-        self.rearLeftSpeedMotor.clearFaults()
-        self.rearRightAngleMotor.clearFaults()
-        self.rearRightSpeedMotor.clearFaults()
-        self.frontRightAngleMotor.clearFaults()
-        self.frontRightSpeedMotor.clearFaults()
+        self.fl_mod.clearFaults()
+        self.fr_mod.clearFaults()
+        
+        self.rl_mod.clearFaults()
+        self.rr_mod.clearFaults()
+        
         return False
     
     def move(self, Lx: float, Ly: float, Rx: float):
@@ -203,45 +202,45 @@ class SwerveDrive:
         fl, fr, rl, rr = self.kinematics.toSwerveModuleStates(speeds)
         
         # Rotation optimization + Cos compensation
-        fl_angle = Rotation2d(self.frontLeftAngleMotor.getAbsPosition())
+        fl_angle = Rotation2d(self.fl_mod.getAngle())
         fl = SwerveModuleState.optimize(fl, fl_angle)
-        fl.speed *= (fl.angle - fl_angle).cos()
+        self.fl_mod.speed *= ((self.fl_mod.getAngle() - fl_angle)).cos()
         
-        fr_angle = Rotation2d(self.frontRightAngleMotor.getAbsPosition())
+        fr_angle = Rotation2d(self.fr_mod.getAngle())
         fr = SwerveModuleState.optimize(fr, fr_angle)
-        fr.speed *= (fr.angle - fl_angle).cos()
+        self.fr_mod.speed *= ((self.fr_mod.getAngle() - fl_angle)).cos()
         
-        rl_angle = Rotation2d(self.rearLeftAngleMotor.getAbsPosition())
+        rl_angle = Rotation2d(self.rl_mod.getAngle())
         rl = SwerveModuleState.optimize(rl, rl_angle)
-        rl.speed *= (rl.angle - rl_angle).cos()
+        self.rl_mod.speed *= ((self.rl_mod.getAngle() - rl_angle)).cos()
         
-        rr_angle = Rotation2d(self.rearRightAngleMotor.getAbsPosition())
+        rr_angle = Rotation2d(self.rr_mod.getAngle())
         rr = SwerveModuleState.optimize(rr, rr_angle)
-        rr.speed *= (rr.angle - rr_angle).cos()
+        self.rr_mod.speed *= ((self.rr_mod.getAngle() - rr_angle)).cos()
         
         self.target_chassis_speeds = self.kinematics.toChassisSpeeds([fl, fr, rl, rr])
         
         self.move_changed = True        
 
     def resetEncoders(self):
-        self.rearLeftSpeedMotor.resetEncoder()
-        self.rearRightSpeedMotor.resetEncoder()
-        self.frontLeftSpeedMotor.resetEncoder()
-        self.frontRightSpeedMotor.resetEncoder()
+        self.fl_mod.resetEncoder()
+        self.rr_mod.resetEncoder()
+        self.fr_mod.resetEncoder()
+        self.rl_mod.resetEncoder()
 
-    def atDistance(self):
-        """SwerveDrive.atDistance()
+    # def atDistance(self):
+    #     """SwerveDrive.atDistance()
 
-        Checks if each wheel has traveled a specified distance"""
-        FL = self.frontLeftSpeedMotor.atDistance()
-        FR = self.frontRightSpeedMotor.atDistance()
-        RL = self.rearLeftSpeedMotor.atDistance()
-        RR = self.rearRightSpeedMotor.atDistance()
+    #     Checks if each wheel has traveled a specified distance"""
+    #     FL = self.frontLeftSpeedMotor.atDistance()
+    #     FR = self.frontRightSpeedMotor.atDistance()
+    #     RL = self.rearLeftSpeedMotor.atDistance()
+    #     RR = self.rearRightSpeedMotor.atDistance()
 
-        if FL and FR and RL and RR:
-            return True
+    #     if FL and FR and RL and RR:
+    #         return True
 
-        return False
+    #     return False
 
     def execute(self):
         """SwerveDrive.execute()

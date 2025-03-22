@@ -12,10 +12,11 @@ class HMI:
     config: HMIConfig
     xbox: wpilib.XboxController
 
-    def __init__(self):
+    def __init__(self, config:HMIConfig):
         """HMI.__init__() -> None
 
         Initialize the HMI object."""
+        self.config = config
         
         self.xbox = wpilib.XboxController(self.config.port_id)
 

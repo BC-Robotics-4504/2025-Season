@@ -1,13 +1,12 @@
 import rev
 import math
-from config import RobotConfig
-
+from pathplannerlib.config import RobotConfig
 
 class SparkMaxDriving:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
     """
-
+    
     # PID coefficients
     kP0 = 6e-5
     kI0 = 0
@@ -32,9 +31,10 @@ class SparkMaxDriving:
     maxAcc = 1000
     minVel = 0
     allowedErr = 0
+    config = RobotConfig.fromGUISettings()
 
-    driveFactor = (RobotConfig.drive_wheel_diameter * math.pi) / (
-        RobotConfig.drivingMotorReduction
+    driveFactor = (config.moduleConfig.wheelRadiusMeters*2 * math.pi) / (
+        6.750
     )
 
     targetDistance = 5.5

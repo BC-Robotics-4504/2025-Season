@@ -6,35 +6,31 @@ from magicbot import MagicRobot
 from phoenix6.hardware import Pigeon2
 
 from hmi import HMI, HMIConfig
-from intake import IntakeController, Intake
-
-from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
+# from intake import IntakeController, Intake
+# from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
 from drivetrain import SwerveDrive, SwerveConfig
+from pathplannerlib.config import RobotConfig
 
 from vision import Vision
-from vision import Limelight
 
 
 class MyRobot(MagicRobot):
 
-    # Configuration Class
-    # RobotConfig = RobotConfig()
-
     # Swerve Drive Component Code
-    SwerveDrive: SwerveDrive
-    Swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
+    swerve: SwerveDrive
+    swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
                                  fl_zoffset=0.0,          # rad
-                                 fl_loc=(0.381, 0.381),   # m
+                                 fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0].toVector()),   # m
                                  fr_CAN=(3,4),            # (drive_id, turn_id)
                                  fr_zoffset=0.0,          # rad
-                                 fr_loc=(0.381, -0.381),  # m
+                                 fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1].toVector()),  # m
                                  rl_CAN=(5,6),            # (drive_id, turn_id)
                                  rl_zoffset=0.0,          # rad
-                                 rl_loc=(-0.381, -0.381), # m
+                                 rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2].toVector()), # m
                                  rr_CAN=(7,8),            # (drive_id, turn_id)
                                  rr_zoffset=0.0,          # rad
-                                 rr_loc=(-0.381, -0.381), # m
-                                 wheel_diameter=4./0.0254,
+                                 rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3].toVector()), # m
+                                 wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters*2,
                                  CAN_id_imu=11)           # IMU_id
 
     # Intake: Intake
