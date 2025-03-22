@@ -1,9 +1,20 @@
-from .limelight import Limelight
-from .calcs import *
+from collections import namedtuple
+
+from .limelight import Limelight, LEDState
+from .calcs import calc_distance
+
+VisionConfig = namedtuple('config',
+                          ['camera_angle',
+                           'camera_mount_height',
+                           'apriltag_target_height',
+                           'max_target_range',
+                           'min_target_range'])
 
 class Vision:
     LimeLight: Limelight = None
-
+    config: VisionConfig
+    
+    # Vision Parameters
     target_distance = 0.0
     horizontal_offset = 0.0
     vertical_offset = 0.0
@@ -12,7 +23,8 @@ class Vision:
     front_camera_active = False
     inRange = False
     
-    def __init__(self, name="limelight"):
+    def __init__(self, config:VisionConfig, name="limelight"):
+        self.config = config
         self.Limelight = Limelight(name=name)
     
     def getTargetDistance(self):
@@ -65,7 +77,7 @@ class Vision:
         if self.target_distance is None:
             return False
         
-        if self.target_distance >= self.RobotConfig.min_target_range and self.target_distance <=self.RobotConfig.max_target_range:
+        if self.target_distance >= self.config.min_target_range and self.target_distance <=self.config.max_target_range:
             self.LimeLight.light(LEDState.ON)
             self.inRange = True
 
@@ -79,9 +91,9 @@ class Vision:
             self.valid_target = self.LimeLight.valid_targets
             if self.valid_target:
                 self.LimeLight.light(LEDState.ON)
-                self.target_distance = calc_distance(self.RobotConfig.camera_angle,
-                                                    self.RobotConfig.camera_mount_height,
-                                                    self.RobotConfig.apriltag_target_height,
+                self.target_distance = calc_distance(self.config.camera_angle,
+                                                    self.config.camera_mount_height,
+                                                    self.config.apriltag_target_height,
                                                     self.LimeLight)
                 
                 self.horizontal_offset = self.LimeLight.horizontal_offset
@@ -97,9 +109,9 @@ class Vision:
             
             self.valid_target = self.LimeLight.valid_targets
             if self.valid_target:
-                self.target_distance = calc_distance(self.RobotConfig.front_camera_angle,
-                                                    self.RobotConfig.front_camera_mount_height,
-                                                    self.RobotConfig.front_apriltag_target_height,
+                self.target_distance = calc_distance(self.config.camera_angle,
+                                                    self.config.camera_mount_height,
+                                                    self.config.apriltag_target_height,
                                                     self.LimeLight)
                 
                 self.horizontal_offset = self.LimeLight.horizontal_offset

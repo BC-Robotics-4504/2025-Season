@@ -1,5 +1,4 @@
 # __init__.py
-from .vision import Vision
-from .limelight import Limelight
+from .vision import Vision, VisionConfig
 
-__all__= ["Vision", "Limelight"]
+__all__= ["Vision", "VisionConfig"]

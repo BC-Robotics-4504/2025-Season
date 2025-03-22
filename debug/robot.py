@@ -1,17 +1,13 @@
 import wpilib
 from magicbot import MagicRobot
 
-# from config import RobotConfig
-
-from phoenix6.hardware import Pigeon2
-
 from hmi import HMI, HMIConfig
 # from intake import IntakeController, Intake
 # from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
 from drivetrain import SwerveDrive, SwerveConfig
 from pathplannerlib.config import RobotConfig
 
-from vision import Vision
+from vision import Vision, VisionConfig
 
 
 class MyRobot(MagicRobot):
@@ -41,7 +37,12 @@ class MyRobot(MagicRobot):
     HMI_config = HMIConfig(port_id=0)
 
     # Vision Code
-    Vision: Vision
+    vision: Vision
+    vision_config = VisionConfig(camera_angle=0,
+                                 camera_mount_height=0.25,
+                                 apriltag_target_height=1.25,
+                                 max_target_range=3.37,
+                                 min_target_range=2.60)
 
     def createObjects(self):
         """MyRobot.createObjects() -> None
