@@ -1,4 +1,4 @@
 # __init__.py
-from .hmi import HMI
+from .hmi import HMI, HMIConfig
 
-__all__ = ["HMI"]
+__all__ = ["HMI", "HMIConfig"]

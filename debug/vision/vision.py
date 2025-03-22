@@ -4,7 +4,6 @@ from config import RobotConfig
 
 class Vision:
     RobotConfig: RobotConfig
-
     LimeLight: Limelight
 
     target_distance = 0.0
@@ -14,6 +13,9 @@ class Vision:
     
     front_camera_active = False
     inRange = False
+    
+    def __init__(self, name="limelight"):
+        self.Limelight = Limelight(name=name)
     
     def getTargetDistance(self):
         """getTargetDistance() -> float or None
@@ -67,12 +69,10 @@ class Vision:
         
         if self.target_distance >= self.RobotConfig.min_target_range and self.target_distance <=self.RobotConfig.max_target_range:
             self.LimeLight.light(LEDState.ON)
-            self.LimeLightFront.light(LEDState.ON)
             self.inRange = True
 
         else:
             self.LimeLight.light(LEDState.OFF)
-            self.LimeLightFront.light(LEDState.OFF)
             self.inRange = True        
 
     def execute(self):
@@ -97,16 +97,15 @@ class Vision:
                 
         else:
             
-            self.valid_target = self.LimeLightFront.valid_targets
+            self.valid_target = self.LimeLight.valid_targets
             if self.valid_target:
-                self.LimeLightFront.light(LEDState.ON)
                 self.target_distance = calc_distance(self.RobotConfig.front_camera_angle,
                                                     self.RobotConfig.front_camera_mount_height,
                                                     self.RobotConfig.front_apriltag_target_height,
-                                                    self.LimeLightFront)
+                                                    self.LimeLight)
                 
-                self.horizontal_offset = self.LimeLightFront.horizontal_offset
-                self.vertical_offset = self.LimeLightFront.vertical_offset  
+                self.horizontal_offset = self.LimeLight.horizontal_offset
+                self.vertical_offset = self.LimeLight.vertical_offset  
             
             else:
-                self.LimeLightFront.light(LEDState.OFF)
+                self.LimeLight.light(LEDState.OFF)

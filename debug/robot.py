@@ -5,7 +5,7 @@ from magicbot import MagicRobot
 
 from phoenix6.hardware import Pigeon2
 
-from hmi import HMI
+from hmi import HMI, HMIConfig
 from intake import IntakeController, Intake
 
 from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
@@ -22,7 +22,7 @@ class MyRobot(MagicRobot):
 
     # Swerve Drive Component Code
     SwerveDrive: SwerveDrive
-    Swerve_config =  SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
+    Swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
                                  fl_zoffset=0.0,          # rad
                                  fl_loc=(0.381, 0.381),   # m
                                  fr_CAN=(3,4),            # (drive_id, turn_id)
@@ -42,22 +42,17 @@ class MyRobot(MagicRobot):
 
     # Controller Component Code
     HMI: HMI
+    HMI_config = HMIConfig(port_id=0)
 
     # Vision Code
-    Limelight: Limelight
-
-    controlGain: float = 1
+    Vision: Vision
 
     def createObjects(self):
         """MyRobot.createObjects() -> None
 
         Create motors and other hardware components here."""
+        pass
         
-        # HMI Hardware Config
-        self.HMI_xbox = wpilib.XboxController(0)
-
-        # Vision Hardware Config
-        self.Vision_Limelight = Limelight(name="limelight_front")
 
     def disabledPeriodic(self):
         pass
@@ -78,14 +73,8 @@ class MyRobot(MagicRobot):
         # if self.Vision.getTargetDistance() is not None:
         #     print(self.Vision.getTargetDistance())
         # Move drivetrain based on Left X/Y and Right X/Y controller inputs
+        
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
-        # print(Lx, Ly, Rx)
-        # print(self.SwerveDrive_FrontLeftAngleMotor.getAbsPosition())
-        # Rx *= self.controlGain
-        print(self.IMU.get_up_time())
-        Lx *= self.controlGain
-        Ly *= self.controlGain
-
         self.SwerveDrive.move(Lx, Ly, Rx)
 
         # """

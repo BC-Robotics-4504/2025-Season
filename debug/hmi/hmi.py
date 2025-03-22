@@ -1,19 +1,23 @@
 # import wpilib
+from collections import namedtuple
 
 import wpilib
 
+HMIConfig = namedtuple('config', ['port_id'])
 
 class HMI:
     """HMI (Human Machine Interface) -- Xbox 360/One Controller
     REFERENCE: https://robotpy.readthedocs.io/projects/wpilib/en/latest/wpilib/XboxController.html#wpilib.XboxController
     """
-
+    config: HMIConfig
     xbox: wpilib.XboxController
 
     def __init__(self):
         """HMI.__init__() -> None
 
         Initialize the HMI object."""
+        
+        self.xbox = wpilib.XboxController(self.config.port_id)
 
         self.changed = True
 
