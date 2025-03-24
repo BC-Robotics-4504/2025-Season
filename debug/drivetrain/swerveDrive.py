@@ -1,9 +1,11 @@
 from collections import namedtuple
 from .swerveModule import SwerveModule
 # from config import RobotConfig
+from numpy import cos
 
-from phoenix6.hardware import Pigeon2
+from phoenix6.hardware import Pigeon2 
 from phoenix6.configs import Pigeon2Configuration 
+from phoenix6.canbus import CANBus
 
 from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Translation2d, Rotation2d, Pose2d
@@ -55,20 +57,21 @@ class SwerveDrive:
     
     def __init__(self, config: SwerveConfig) -> None:
         # TODO: update robotpy config in main file
-        self.__initIMU__()
         self.config = config
+        self.IMU = Pigeon2(11, canbus=CANBus("rio"))
+        
+        self.__initIMU__()
         self.fr_mod = SwerveModule(self.config.fl_CAN, self.config.fl_zoffset, self.config.wheel_diameter)
         self.fl_mod = SwerveModule(self.config.fr_CAN, self.config.fr_zoffset, self.config.wheel_diameter)
         self.rl_mod = SwerveModule(self.config.rl_CAN, self.config.rl_zoffset, self.config.wheel_diameter)
         self.rr_mod = SwerveModule(self.config.rr_CAN, self.config.rr_zoffset, self.config.wheel_diameter)
-        self.IMU = Pigeon2(self.config.CAN_id_imu)
         
         # Setup kinematics module
         frontLeftLocation = Translation2d(self.config.fl_loc[0], self.config.fl_loc[1]) # TODO: update me
         frontRightLocation = Translation2d(self.config.fr_loc[0], self.config.fr_loc[1]) # TODO: update me
         rearLeftLocation = Translation2d(self.config.rl_loc[0], self.config.rl_loc[1]) # TODO: update me
         rearRightLocation = Translation2d(self.config.rr_loc[0], self.config.rr_loc[1]) # TODO: update me
-        
+      
         self.kinematics = SwerveDrive4Kinematics(
             frontLeftLocation, 
             frontRightLocation, 
@@ -108,7 +111,8 @@ class SwerveDrive:
         imu_config.mount_pose.mount_pose_yaw = 0
         imu_config.mount_pose.mount_pose_pitch = 0
         imu_config.mount_pose.mount_pose_roll = 90
-        # self.IMU.configurator.apply(imu_config)
+        self.IMU.configurator.apply(imu_config)
+
         
     def getPose(self):
         return self.poseEstimator.getEstimatedPosition()
@@ -143,11 +147,11 @@ class SwerveDrive:
         return SwerveModulePosition(dist, Rotation2d(ang))
     
     def updatePose(self):
-        self.poseEstimator.update(Rotation2d(self.IMU.get_accum_gyro_x()), # TODO: Check me
-                                    [self.__flSwervePos__(),
-                                    self.__frSwervePos__(),
-                                    self.__rlSwervePos__(),
-                                    self.__rrSwervePos__()]
+        self.poseEstimator.update(Rotation2d(self.IMU.get_accum_gyro_x().value), # TODO: Check me
+                                    [self.flSwervePos,
+                                    self.frSwervePos,
+                                    self.rlSwervePos,
+                                    self.rrSwervePos]
         )
         
         
@@ -157,16 +161,16 @@ class SwerveDrive:
     def driveRobotRelativeSpeeds(self, chassisSpeeds:ChassisSpeeds):
         fl, fr, rl, rr = self.kinematics.toSwerveModuleStates(chassisSpeeds)
         
-        self.fl_mod.setAngle(fl.angle)
+        self.fl_mod.setAngle(fl.angle.radians())
         self.fl_mod.setSpeed(fl.speed)
         
-        self.fr_mod.setAngle(fr.angle)
+        self.fr_mod.setAngle(fr.angle.radians())
         self.fr_mod.setSpeed(fr.speed)
 
-        self.rl_mod.setAngle(rl.angle)
+        self.rl_mod.setAngle(rl.angle.radians())
         self.rl_mod.setSpeed(rl.speed)
-
-        self.rr_mod.setAngle(rr.angle)
+    
+        self.rr_mod.setAngle(rr.angle.radians())
         self.rr_mod.setSpeed(rr.speed)
         
         
@@ -198,22 +202,22 @@ class SwerveDrive:
         
         # Rotation optimization + Cos compensation
         fl_angle = Rotation2d(self.fl_mod.getAngle())
-        fl = SwerveModuleState.optimize(fl, fl_angle)
-        self.fl_mod.speed *= ((self.fl_mod.getAngle() - fl_angle)).cos()
+        # fl = SwerveModuleState.optimize(fl, fl_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
+        self.fl_mod.speed *= cos(((self.fl_mod.getAngle() - fl_angle.radians())))
         
         fr_angle = Rotation2d(self.fr_mod.getAngle())
-        fr = SwerveModuleState.optimize(fr, fr_angle)
-        self.fr_mod.speed *= ((self.fr_mod.getAngle() - fl_angle)).cos()
+        # fr = SwerveModuleState.optimize(fr, fr_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
+        self.fr_mod.speed *= cos(((self.fr_mod.getAngle() - fl_angle.radians())))
         
         rl_angle = Rotation2d(self.rl_mod.getAngle())
-        rl = SwerveModuleState.optimize(rl, rl_angle)
-        self.rl_mod.speed *= ((self.rl_mod.getAngle() - rl_angle)).cos()
+        # rl = SwerveModuleState.optimize(rl, rl_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
+        self.rl_mod.speed *= cos(((self.rl_mod.getAngle() - rl_angle.radians())))
         
         rr_angle = Rotation2d(self.rr_mod.getAngle())
-        rr = SwerveModuleState.optimize(rr, rr_angle)
-        self.rr_mod.speed *= ((self.rr_mod.getAngle() - rr_angle)).cos()
-        
-        self.target_chassis_speeds = self.kinematics.toChassisSpeeds([fl, fr, rl, rr])
+        # rr = SwerveModuleState.optimize(rr, rr_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
+        self.rr_mod.speed *= cos(((self.rr_mod.getAngle() - rr_angle.radians())))
+        print(fl, fr ,rl ,rr)
+        self.target_chassis_speeds = self.kinematics.toChassisSpeeds((fl, fr, rl, rr))
         
         self.move_changed = True        
 
@@ -241,9 +245,11 @@ class SwerveDrive:
         """SwerveDrive.execute()
         Updates the postion of the absolute encoders and the speed of each swerve module
         """
-
         if self.move_changed:
             self.driveRobotRelativeSpeeds(self.target_chassis_speeds)
+        
+
             self.move_changed = False
             
+
         self.updatePose()

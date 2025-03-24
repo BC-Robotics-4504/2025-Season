@@ -19,6 +19,7 @@ class SwerveModule:
             absolute_encoder=True, 
             z_offset=turn_zoffset
         )
+        self.speed = 0 #! THIS IS PROBABLY WRONG WILL NEED TO BE FIXED
         
     def setAngle(self, position: float):
         self.turnMotor.setAbsPosition(position)
@@ -27,7 +28,7 @@ class SwerveModule:
     def getAngle(self):
         return self.turnMotor.getAbsPosition()
     
-    def getSpeed(self):
+    def getSpeed(self) -> int:
         return self.driveMotor.getSpeed()
 
     def setSpeed(self, speed:float):
@@ -35,9 +36,9 @@ class SwerveModule:
         return None
     
     def clearFaults(self):
-        self.driveMotor.clearFaults(
+        self.driveMotor.clearFaults()
         self.turnMotor.clearFaults()
-        )
+        
         return None
     
     def resetEncoder(self):
@@ -293,7 +294,7 @@ class SparkMaxTurning:
 
         Sets the absoulute positon of the encoder"""
         self.controller.setReference(
-            position, rev._rev.SparkLowLevel.ControlType.kPosition
+            position, rev.SparkLowLevel.ControlType.kPosition
         )
         return False
 

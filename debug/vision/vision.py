@@ -11,7 +11,7 @@ VisionConfig = namedtuple('config',
                            'min_target_range'])
 
 class Vision:
-    LimeLight: Limelight = None
+    LimeLight: Limelight
     config: VisionConfig
     
     # Vision Parameters

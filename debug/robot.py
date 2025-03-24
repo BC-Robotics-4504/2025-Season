@@ -2,6 +2,7 @@ import wpilib
 from magicbot import MagicRobot
 
 from hmi import HMI, HMIConfig
+from phoenix6.hardware import Pigeon2
 # from intake import IntakeController, Intake
 # from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
 from drivetrain import SwerveDrive, SwerveConfig
@@ -16,33 +17,36 @@ class MyRobot(MagicRobot):
     swerve: SwerveDrive
     swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
                                  fl_zoffset=0.0,          # rad
-                                 fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0].toVector()),   # m
+                                 fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0]),   # m
                                  fr_CAN=(3,4),            # (drive_id, turn_id)
                                  fr_zoffset=0.0,          # rad
-                                 fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1].toVector()),  # m
+                                 fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1]),  # m
                                  rl_CAN=(5,6),            # (drive_id, turn_id)
                                  rl_zoffset=0.0,          # rad
-                                 rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2].toVector()), # m
+                                 rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2]), # m
                                  rr_CAN=(7,8),            # (drive_id, turn_id)
                                  rr_zoffset=0.0,          # rad
-                                 rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3].toVector()), # m
+                                 rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3]), # m
                                  wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters*2,
                                  CAN_id_imu=11)           # IMU_id
 
+    
     # Intake: Intake
     # IntakeController: IntakeController
 
     # Controller Component Code
     HMI: HMI
     HMI_config = HMIConfig(port_id=0)
+    
 
     # Vision Code
-    vision: Vision
+    # vision: Vision
     vision_config = VisionConfig(camera_angle=0,
                                  camera_mount_height=0.25,
                                  apriltag_target_height=1.25,
                                  max_target_range=3.37,
-                                 min_target_range=2.60)
+                                 min_target_range=2.60
+                                 )
 
     def createObjects(self):
         """MyRobot.createObjects() -> None
