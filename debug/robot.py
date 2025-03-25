@@ -12,7 +12,7 @@ from vision import Vision, VisionConfig
 
 
 class MyRobot(MagicRobot):
-
+  
     # Swerve Drive Component Code
     swerve: SwerveDrive
     swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
@@ -65,6 +65,7 @@ class MyRobot(MagicRobot):
         """
         # self.IntakeController.ground()
         self.swerve.clearFaults()
+        
         pass
 
     def teleopPeriodic(self):
@@ -76,6 +77,7 @@ class MyRobot(MagicRobot):
         # Move drivetrain based on Left X/Y and Right X/Y controller inputs
         
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
+        
         self.swerve.move(Lx, Ly, Rx)
 
         # """

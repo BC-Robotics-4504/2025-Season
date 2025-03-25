@@ -19,7 +19,6 @@ class SwerveModule:
             absolute_encoder=True, 
             z_offset=turn_zoffset
         )
-        self.speed = 0 #! THIS IS PROBABLY WRONG WILL NEED TO BE FIXED
         
     def setAngle(self, position: float):
         self.turnMotor.setAbsPosition(position)
@@ -54,7 +53,7 @@ class SwerveModule:
 
     #     Checks if the robot has travlled to the specfied distance"""
     #     currentDistance = self.driveMotor.
-    #     if abs(currentDistance - self.driveMot) <= self.tolerance:
+    #     if abs(currentDistance - self.driveMotor) <= self.tolerance:
     #         return True
 
     #     return False
@@ -161,10 +160,10 @@ class SparkMaxDriving:
         SparkMaxDriving.setSpeed()
 
         Sets the speed of the swerve modules"""
-        # self.motor.set(speed)
-        self.motor.getClosedLoopController().setReference(
-            speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
-        )  # NOTE: Changed this.
+        self.motor.set(speed)
+        # self.motor.getClosedLoopController().setReference(
+        #     speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
+        # )  # NOTE: Changed this.
         return None
     
     def getDistance(self):

@@ -44,7 +44,6 @@ class SparkMaxTurning:
         self.zOffset = z_offset
 
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
-        self.motor.setInverted(inverted)
         self.config = rev.SparkMaxConfig()
 
         # self.config.smartCurrentLimit(20)

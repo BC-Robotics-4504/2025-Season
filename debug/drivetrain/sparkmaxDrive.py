@@ -33,9 +33,10 @@ class SparkMaxDriving:
     allowedErr = 0
     config = RobotConfig.fromGUISettings()
 
-    driveFactor = (config.moduleConfig.wheelRadiusMeters*2 * math.pi) / (
-        6.750
-    )
+    # driveFactor = (config.moduleConfig.wheelRadiusMeters*2 * math.pi) / (
+    #     6.750
+    # )
+    driveFactor = 1
 
     targetDistance = 5.5
     tolerance = 0.1
@@ -85,6 +86,10 @@ class SparkMaxDriving:
             rev.SparkMax.ResetMode.kResetSafeParameters,
             rev.SparkMax.PersistMode.kPersistParameters,
         )
+        
+        self.controller = self.motor.getClosedLoopController()
+        self.encoder = self.motor.getEncoder()
+        
         self.clearFaults()
 
     def clearFaults(self):
@@ -98,7 +103,8 @@ class SparkMaxDriving:
 
         Gets the current speed of the swerve modules
         """
-        vel = -self.motor.getEncoder().getVelocity()  # rpm
+        # vel = self.motor.getEncoder().getVelocity()  # rpm
+        vel = self.encoder.getVelocity()
         return vel
 
     def setSpeed(self, speed):
@@ -106,10 +112,10 @@ class SparkMaxDriving:
         SparkMaxDriving.setSpeed()
 
         Sets the speed of the swerve modules"""
-        # self.motor.set(speed)
-        self.motor.getClosedLoopController().setReference(
-            speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
-        )  # NOTE: Changed this.
+        self.motor.set(speed)
+        # self.controller.setReference(
+        #     speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
+        # )  # NOTE: Changed this.
         return None
     
     def getDistance(self):
@@ -143,5 +149,5 @@ class SparkMaxDriving:
         return False
 
     def resetEncoder(self):
-        self.motor.getEncoder().setPosition(0)
+        self.encoder.setPosition(0)
         return 0

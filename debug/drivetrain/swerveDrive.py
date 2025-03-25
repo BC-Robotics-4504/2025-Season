@@ -98,8 +98,8 @@ class SwerveDrive:
             self.getRobotRelativeSpeeds,
             lambda speeds, feedforwards: self.driveRobotRelative(speeds),
             PPHolonomicDriveController(
-                PIDConstants(5.0, 0.0, 0.0),
-                PIDConstants(5.0, 0.0, 0.0)
+                PIDConstants(1.0, 0.0, 0.0),
+                PIDConstants(1.0, 0.0, 0.0)
                 ),
             config,
             self.shouldFlipPath,
@@ -169,7 +169,7 @@ class SwerveDrive:
 
         self.rl_mod.setAngle(rl.angle.radians())
         self.rl_mod.setSpeed(rl.speed)
-    
+
         self.rr_mod.setAngle(rr.angle.radians())
         self.rr_mod.setSpeed(rr.speed)
         
@@ -202,23 +202,25 @@ class SwerveDrive:
         
         # Rotation optimization + Cos compensation
         fl_angle = Rotation2d(self.fl_mod.getAngle())
-        # fl = SwerveModuleState.optimize(fl, fl_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
-        self.fl_mod.speed *= cos(((self.fl_mod.getAngle() - fl_angle.radians())))
+        # fl_opt = SwerveModuleState.optimize(fl, fl_angle)
+        fl.optimize(fl_angle)
+        fl.speed *= (fl.angle - fl_angle).cos()
         
         fr_angle = Rotation2d(self.fr_mod.getAngle())
-        # fr = SwerveModuleState.optimize(fr, fr_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
-        self.fr_mod.speed *= cos(((self.fr_mod.getAngle() - fl_angle.radians())))
+        # fr_opt = SwerveModuleState.optimize(fr, fr_angle) 
+        fr.optimize(fr_angle)
+        fr.speed *= (fr.angle - fr_angle).cos()
         
         rl_angle = Rotation2d(self.rl_mod.getAngle())
-        # rl = SwerveModuleState.optimize(rl, rl_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
-        self.rl_mod.speed *= cos(((self.rl_mod.getAngle() - rl_angle.radians())))
+        # rl_opt = SwerveModuleState.optimize(rl, rl_angle) 
+        rl.optimize(rl_angle)
+        rl.speed *= (rl.angle - rl_angle).cos()
         
         rr_angle = Rotation2d(self.rr_mod.getAngle())
-        # rr = SwerveModuleState.optimize(rr, rr_angle) #! IS setting fl, fr, rl, and rr to NONE (need to investigate)
-        self.rr_mod.speed *= cos(((self.rr_mod.getAngle() - rr_angle.radians())))
-        print(fl, fr ,rl ,rr)
+        # rr_opt = SwerveModuleState.optimize(rr, rr_angle) 
+        rr.optimize(rr_angle)
+        rr.speed *= (rr.angle - rr_angle).cos()
         self.target_chassis_speeds = self.kinematics.toChassisSpeeds((fl, fr, rl, rr))
-        
         self.move_changed = True        
 
     def resetEncoders(self):
@@ -247,9 +249,9 @@ class SwerveDrive:
         """
         if self.move_changed:
             self.driveRobotRelativeSpeeds(self.target_chassis_speeds)
-        
-
             self.move_changed = False
-            
+        
+        print(self.fl_mod.getAngle(), self.fl_mod.getSpeed(), self.target_chassis_speeds)
+        
 
         self.updatePose()
