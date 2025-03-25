@@ -16,16 +16,16 @@ class MyRobot(MagicRobot):
     # Swerve Drive Component Code
     swerve: SwerveDrive
     swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
-                                 fl_zoffset=0.0,          # rad
+                                 fl_zoffset=0.2028476,          # rad
                                  fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0]),   # m
                                  fr_CAN=(3,4),            # (drive_id, turn_id)
-                                 fr_zoffset=0.0,          # rad
+                                 fr_zoffset=0.0137317,          # rad
                                  fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1]),  # m
                                  rl_CAN=(5,6),            # (drive_id, turn_id)
-                                 rl_zoffset=0.0,          # rad
+                                 rl_zoffset=0.2132813,          # rad
                                  rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2]), # m
                                  rr_CAN=(7,8),            # (drive_id, turn_id)
-                                 rr_zoffset=0.0,          # rad
+                                 rr_zoffset=0.5347367,          # rad
                                  rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3]), # m
                                  wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters*2,
                                  CAN_id_imu=11)           # IMU_id
