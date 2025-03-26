@@ -2,58 +2,70 @@ import wpilib
 from magicbot import MagicRobot
 
 from hmi import HMI, HMIConfig
-from phoenix6.hardware import Pigeon2
-# from intake import IntakeController, Intake
-# from intake import IntakeController, SparkMaxDualSpinner, SparkMaxPivot
+
+from intake import IntakeConfig, IntakeController
+
 from drivetrain import SwerveDrive, SwerveConfig
+
 from pathplannerlib.config import RobotConfig
 
 from vision import Vision, VisionConfig
 
 
 class MyRobot(MagicRobot):
-  
+
     # Swerve Drive Component Code
     swerve: SwerveDrive
-    swerve_config = SwerveConfig(fl_CAN=(1,2),           # (drive_id, turn_id)
-                                 fl_zoffset=0.2028476,          # rad
-                                 fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0]),   # m
-                                 fr_CAN=(3,4),            # (drive_id, turn_id)
-                                 fr_zoffset=0.0137317,          # rad
-                                 fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1]),  # m
-                                 rl_CAN=(5,6),            # (drive_id, turn_id)
-                                 rl_zoffset=0.2132813,          # rad
-                                 rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2]), # m
-                                 rr_CAN=(7,8),            # (drive_id, turn_id)
-                                 rr_zoffset=0.5347367,          # rad
-                                 rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3]), # m
-                                 wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters*2,
-                                 CAN_id_imu=11)           # IMU_id
+    swerve_config = SwerveConfig(
+        fl_CAN=(1, 2),  # (drive_id, turn_id)
+        fl_zoffset=0.2028476,  # rad
+        fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0]),  # m
+        fr_CAN=(3, 4),  # (drive_id, turn_id)
+        fr_zoffset=0.0137317,  # rad
+        fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1]),  # m
+        rl_CAN=(5, 6),  # (drive_id, turn_id)
+        rl_zoffset=0.2132813,  # rad
+        rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2]),  # m
+        rr_CAN=(7, 8),  # (drive_id, turn_id)
+        rr_zoffset=0.5347367,  # rad
+        rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3]),  # m
+        wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters * 2,
+        CAN_id_imu=11,  # IMU_id
+    ) 
+
+    intakeController: IntakeController
+    intake_config = IntakeConfig(
+        CAN_ids=(20, 21),  # * Change these (SpinID, PivotID)
+        tolerance=0,
+        intake_ground_position=0,
+        shooting_flywheel_threshold_speed=0,
+        intake_reverse_rolling_speed=0,
+        intake_forward_rolling_speed=0,
+        intake_raised_position=0,
+        coral_score_speed=0,
+    )
 
     
-    # Intake: Intake
-    # IntakeController: IntakeController
 
     # Controller Component Code
     HMI: HMI
     HMI_config = HMIConfig(port_id=0)
-    
 
     # Vision Code
     # vision: Vision
-    vision_config = VisionConfig(camera_angle=0,
-                                 camera_mount_height=0.25,
-                                 apriltag_target_height=1.25,
-                                 max_target_range=3.37,
-                                 min_target_range=2.60
-                                 )
+    vision_config = VisionConfig(
+        camera_angle=0,
+        camera_mount_height=0.25,
+        apriltag_target_height=1.25,
+        max_target_range=3.37,
+        min_target_range=2.60,
+    )
 
     def createObjects(self):
         """MyRobot.createObjects() -> None
 
         Create motors and other hardware components here."""
         pass
-        
 
     def disabledPeriodic(self):
         pass
@@ -65,7 +77,7 @@ class MyRobot(MagicRobot):
         """
         # self.IntakeController.ground()
         self.swerve.clearFaults()
-        
+
         pass
 
     def teleopPeriodic(self):
@@ -77,7 +89,7 @@ class MyRobot(MagicRobot):
         # Move drivetrain based on Left X/Y and Right X/Y controller inputs
         
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
-        
+
         self.swerve.move(Lx, Ly, Rx)
 
         # """

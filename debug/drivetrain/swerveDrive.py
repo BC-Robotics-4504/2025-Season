@@ -1,7 +1,7 @@
+
 from collections import namedtuple
 from .swerveModule import SwerveModule
 # from config import RobotConfig
-from numpy import cos
 
 from phoenix6.hardware import Pigeon2 
 from phoenix6.configs import Pigeon2Configuration 
@@ -58,6 +58,7 @@ class SwerveDrive:
     def __init__(self, config: SwerveConfig) -> None:
         # TODO: update robotpy config in main file
         self.config = config
+       
         self.IMU = Pigeon2(11, canbus=CANBus("rio"))
         
         self.__initIMU__()
@@ -251,7 +252,7 @@ class SwerveDrive:
             self.driveRobotRelativeSpeeds(self.target_chassis_speeds)
             self.move_changed = False
         
-        print(self.fl_mod.getAngle(), self.fl_mod.getSpeed(), self.target_chassis_speeds)
+        # print(self.fl_mod.getAngle(), self.fl_mod.getSpeed(), self.target_chassis_speeds)
         
 
         self.updatePose()
