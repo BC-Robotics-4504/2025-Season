@@ -38,14 +38,16 @@ class MyRobot(MagicRobot):
     
     intake_config = IntakeConfig(
         CAN_ids=(20, 21),  
-        tolerance=0,
+        pivot_tolerance=0.05,
         intake_ground_position=0,
-        shooting_flywheel_threshold_speed=0,
-        intake_reverse_rolling_speed=0,
-        intake_forward_rolling_speed=0,
         intake_raised_position=0,
         coral_score_speed=0,
-        z_offset=0
+        z_offset=0,
+        coral_eject_time=0,
+        algae_pickup_time=0,
+        algae_pickup_speed=0,
+        algae_score_time=0,
+        algae_score_speed=0
     )
 
     
@@ -95,10 +97,12 @@ class MyRobot(MagicRobot):
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
         
         #  # Actuate Launcher
-        # if self.HMI.getA():
+        if self.HMI.getA():
+            self.Intake.raiseIntake()
             
 
-        # if self.HMI.getB():
+        if self.HMI.getB():
+            self.Intake.groundIntake()
             
             
         # if self.HMI.getY():
