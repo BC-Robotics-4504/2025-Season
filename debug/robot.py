@@ -37,11 +37,11 @@ class MyRobot(MagicRobot):
     Intake: Intake
     Intake_config = IntakeConfig(
         CAN_ids=(20, 21),  
-        pivot_zoffset=.4,
+        pivot_zoffset=5,
         pivot_gear_ratio=1,
         up_angle=0,
-        down_angle=24,
-        spinner_speed=0,
+        down_angle=0.25,
+        spinner_speed=0.20,
     )
 
     # Controller Component Code
@@ -89,8 +89,6 @@ class MyRobot(MagicRobot):
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
         
         #  # Actuate Launcher
-        if self.HMI.getA():
-            self.Intake.setUp()
             
 
         if self.HMI.getB():
@@ -98,6 +96,9 @@ class MyRobot(MagicRobot):
             
         else:
             self.Intake.setUp()
+            
+        print(self.Intake.pivotMotor.getPosition())
+
             
             
         # if self.HMI.getY():

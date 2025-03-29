@@ -13,12 +13,12 @@ IntakeConfig = namedtuple('config',
                            'spinner_speed'])
 
 class PivotPosition(Enum):
-    UP = 1
-    DOWN = 2
+    UP = 0
+    DOWN = 1
     
 class SpinnerSpeed(Enum):
-    ON = 1
-    OFF = 2
+    ON = 0
+    OFF = 1
 
 class Intake:
     
@@ -74,8 +74,7 @@ class Intake:
             self.current_speed = SpinnerSpeed.OFF
         
     def __setAngle__(self, angle: float):
-        self.pivotMotor.setPosition(angle*self.config.pivot_gear_ratio)
-        return False
+        self.pivotMotor.setPosition(angle)
     
     def __setSpeed__(self, speed: float):
         self.spinnerMotor.setSpeed(speed)

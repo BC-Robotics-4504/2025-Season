@@ -51,7 +51,6 @@ class SparkMaxDriving:
     ):
         self.canID = canID
         self.gear_ratio = gear_ratio
-        self.inverted = inverted
         self.absolute = absolute_encoder
         self.gear_ratio = gear_ratio
         self.wheel_diameter = wheel_diameter
