@@ -1,10 +1,5 @@
-import rev
-import wpilib
-
-from config import RobotConfig
-
 import math
-
+import rev
 
 class SparkMaxPivot:
     """Swerve Drive SparkMax Class
@@ -36,22 +31,14 @@ class SparkMaxPivot:
         inverted=False,
         gear_ratio=1,
         wheel_diameter=1,
-        absolute_encoder=False,
         z_offset=0,
-        follower_canID=None,
     ):
         self.canID = canID
-        self.follower_canID = follower_canID
         self.gear_ratio = gear_ratio
         self.inverted = inverted
-        self.absolute = absolute_encoder
         self.gear_ratio = gear_ratio
         self.wheel_diameter = wheel_diameter
         self.zOffset = z_offset
-
-        # Encoder parameters
-        # https://docs.reduxrobotics.com/canandcoder/spark-max
-        # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
 
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.config = rev.SparkMaxConfig()
@@ -62,15 +49,21 @@ class SparkMaxPivot:
         
         # Limit Switch
         self.config.limitSwitch.setSparkMaxDataPortConfig()
-        
 
-        self.encoder = self.motor.getAbsoluteEncoder()
-        self.controller = self.motor.getClosedLoopController()
+        self.config.absoluteEncoder.setSparkMaxDataPortConfig()
+        self.config.absoluteEncoder.inverted(not inverted)
+        self.config.absoluteEncoder.endPulseUs(1024)
+        self.config.absoluteEncoder.startPulseUs(1)
+        self.config.absoluteEncoder.positionConversionFactor(2 * math.pi)
 
-        self.config.absoluteEncoder.inverted(inverted)
-        self.config.absoluteEncoder.positionConversionFactor(
-            2 * math.pi / self.gear_ratio
-        )
+        # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
+        z_offset /= 2.0 * math.pi
+        if z_offset < 0.0:
+            z_offset += 1.0
+
+        self.config.absoluteEncoder.zeroOffset(
+            z_offset
+        )  #!FIXME Causes code to crash with Invalid Parameter Runtime error
 
         self.config.absoluteEncoder.velocityConversionFactor(0.104719755119659771)
 
@@ -78,11 +71,6 @@ class SparkMaxPivot:
         self.config.closedLoop.positionWrappingEnabled(False)
         self.config.closedLoop.positionWrappingMinInput(0)
         self.config.closedLoop.positionWrappingMaxInput(2 * math.pi / self.gear_ratio)
-
-        # self.SMcontroller.setSmartMotionMaxVelocity(self.maxVel, self.smartMotionSlot)
-        # self.SMcontroller.setSmartMotionMinOutputVelocity(self.minVel, self.smartMotionSlot)
-        # self.SMcontroller.setSmartMotionMaxAccel(self.maxAcc, self.smartMotionSlot)
-        # self.SMcontroller.setSmartMotionAllowedClosedLoopError(self.allowedErr, self.smartMotionSlot)
 
         # PID parameters
         self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
@@ -92,32 +80,14 @@ class SparkMaxPivot:
             self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0
         )
 
+        self.encoder = self.motor.getAbsoluteEncoder()
+        self.controller = self.motor.getClosedLoopController()
+        
         self.motor.configure(
             self.config,
             rev.SparkMax.ResetMode.kResetSafeParameters,
             rev.SparkMax.PersistMode.kPersistParameters,
         )
-
-        # Setup follower
-        if follower_canID is not None:
-            follower_motor = rev.SparkMax(
-                self.follower_canID, rev.SparkMax.MotorType.kBrushless
-            )
-            self.followerConfig = rev.SparkMaxConfig()
-            self.followerConfig.follow(self.motor, invert=True)
-            self.motor.configure(
-                self.followerConfig,
-                rev.SparkMax.ResetMode.kResetSafeParameters,
-                rev.SparkMax.PersistMode.kPersistParameters,
-            )
-
-            # follower_motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
-            # follower_motor.setSmartCurrentLimit(40)
-
-            self.follower_motor = follower_motor
-
-        else:
-            self.follower_motor = None
 
     def clearFaults(self):
         """SparkMaxPivot.clearFaults() -> None
@@ -144,9 +114,6 @@ class SparkMaxPivot:
         Get the position of the motor controller."""
         rotation = self.encoder.getPosition()
         return rotation
-    
-    def getForwardLimitSwitch(self):
-        return self.motor.getForwardLimitSwitch().get()
 
     def atPosition(self, tolerance=0.05):
         """SparkMaxPivot.atPosition(tolerance: float) -> bool

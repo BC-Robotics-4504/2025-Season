@@ -3,7 +3,7 @@ from magicbot import MagicRobot
 
 from hmi import HMI, HMIConfig
 
-from intake import IntakeConfig, IntakeController
+from intake import Intake, IntakeConfig
 
 from drivetrain import SwerveDrive, SwerveConfig
 
@@ -34,23 +34,15 @@ class MyRobot(MagicRobot):
         CAN_id_imu=11,  # IMU_id
     ) 
 
-    Intake: IntakeController
-    
-    intake_config = IntakeConfig(
+    Intake: Intake
+    Intake_config = IntakeConfig(
         CAN_ids=(20, 21),  
-        pivot_tolerance=0.05,
-        intake_ground_position=0,
-        intake_raised_position=0,
-        coral_score_speed=0,
-        z_offset=0,
-        coral_eject_time=0,
-        algae_pickup_time=0,
-        algae_pickup_speed=0,
-        algae_score_time=0,
-        algae_score_speed=0
+        pivot_zoffset=.4,
+        pivot_gear_ratio=1,
+        up_angle=0,
+        down_angle=24,
+        spinner_speed=0,
     )
-
-    
 
     # Controller Component Code
     HMI: HMI
@@ -98,11 +90,14 @@ class MyRobot(MagicRobot):
         
         #  # Actuate Launcher
         if self.HMI.getA():
-            self.Intake.raiseIntake()
+            self.Intake.setUp()
             
 
         if self.HMI.getB():
-            self.Intake.groundIntake()
+            self.Intake.setDown()
+            
+        else:
+            self.Intake.setUp()
             
             
         # if self.HMI.getY():

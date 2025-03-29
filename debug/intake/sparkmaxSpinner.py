@@ -1,12 +1,6 @@
-import math
-
-import wpilib
 import rev
 
-from config import RobotConfig
-
-
-class SparkMaxDualSpinner:
+class SparkMaxSpinner:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
     """
@@ -77,8 +71,6 @@ class SparkMaxDualSpinner:
 
         ::params:
         speed: float : The speed to set the motor controller to."""
-
-        self.target_speed = speed
         self.motor.set(speed)
         return False
 
@@ -87,12 +79,3 @@ class SparkMaxDualSpinner:
 
         Gets the current speed of the motor controller."""
         return self.encoder.getVelocity()
-
-    def atSpeed(self, tolerance=0.02):
-        """SparkMaxDualSpinner.atSpeed(tolerance: float) -> bool
-
-        Check if the motor controller is at speed."""
-        err = self.target_speed - self.getSpeed()
-        if abs(err) <= tolerance:
-            return True
-        return False

@@ -1,298 +1,93 @@
-import rev
-import wpilib
-import math
-\
-class Intake:
-    spinMotor: rev.SparkMax
-    pivotMotor: rev.SparkMax
+from enum import Enum
+
+from collections import namedtuple
+from .sparkmaxPivot import SparkMaxPivot
+from .sparkmaxSpinner import SparkMaxSpinner
+
+IntakeConfig = namedtuple('config',
+                          ['CAN_ids',
+                           'pivot_zoffset',
+                           'pivot_gear_ratio',
+                           'up_angle',
+                           'down_angle',
+                           'spinner_speed'])
+
+class PivotPosition(Enum):
+    UP = 1
+    DOWN = 2
     
-    def __init__(self, CAN_ids:tuple[int, int]):
+class SpinnerSpeed(Enum):
+    ON = 1
+    OFF = 2
+
+class Intake:
+    
+    config: IntakeConfig
+    spinnerMotor: SparkMaxSpinner
+    pivotMotor: SparkMaxPivot
+    
+    current_position: PivotPosition = PivotPosition.UP
+    current_speed: SpinnerSpeed = SpinnerSpeed.OFF
+    
+    def __init__(self, config: IntakeConfig) -> None:
+        self.config = config
         
-        self.CAN_ids = CAN_ids
-        
-        self.spinMotor = SparkMaxDualSpinner(
-             21,#! TYPE Error Not subscriptable? why?
-             inverted=False, 
-         )
         
         self.pivotMotor = SparkMaxPivot(
-            20, #! TYPE Error Not subscriptable? why?
+            self.config.CAN_ids[0], 
             inverted=False, 
-            z_offset=0
+            z_offset=self.config.pivot_zoffset,
+            gear_ratio=self.config.pivot_gear_ratio
+        )
+    
+        self.spinnerMotor = SparkMaxSpinner(
+            self.config.CAN_ids[1],
+            inverted=False
         )
         
-    def setPosition(self, position: float):
-        self.pivotMotor.setPosition(position)
+    def setDown(self):
+        if self.current_position != PivotPosition.DOWN:
+            self.__setAngle__(self.config.down_angle)
+            self.current_position = PivotPosition.DOWN
+        
+        if self.current_speed != SpinnerSpeed.ON:
+            self.__setSpeed__(self.config.spinner_speed)
+            self.current_speed = SpinnerSpeed.ON
+    
+    def setUp(self):
+        if self.current_position != PivotPosition.UP:
+            self.__setAngle__(self.config.up_angle)
+            self.current_position = PivotPosition.UP
+        
+        if self.current_speed != SpinnerSpeed.OFF:
+            self.__setSpeed__(0)
+            self.current_speed = SpinnerSpeed.OFF
+    
+    def setSpin(self):
+        if self.current_speed != SpinnerSpeed.ON:
+            self.__setSpeed__(self.config.spinner_speed)
+            self.current_speed = SpinnerSpeed.ON
+    
+    def resetSpin(self):
+        if self.current_speed != SpinnerSpeed.OFF:
+            self.__setSpeed__(0)
+            self.current_speed = SpinnerSpeed.OFF
+        
+    def __setAngle__(self, angle: float):
+        self.pivotMotor.setPosition(angle*self.config.pivot_gear_ratio)
         return False
-
-    def getPosition(self):
-        return self.pivotMotor.getPosition()
     
-    def getSpeed(self) -> int:
-        return self.spinMotor.getSpeed()
-
-    def setSpeed(self, speed:float):
-        self.spinMotor.setSpeed(speed)
-        return None
-    
-    def getLimitSwitch(self):
-        return self.pivotMotor.getForwardLimitSwitch()
+    def __setSpeed__(self, speed: float):
+        self.spinnerMotor.setSpeed(speed)
     
     def clearFaults(self):
-        self.spinMotor.clearFaults()
+        self.spinnerMotor.clearFaults()
         self.pivotMotor.clearFaults()
-        
         return None
     
     def resetEncoder(self):
-        """Reset Swerve Module Encoders
+        self.spinnerMotor.getEncoder().Position(0)
         
-        returns None"""
+    def execute(self):
+        return
         
-        self.spinMotor.getEncoder().setPosition(0)
-        self.pivotMotor.getEncoder().setPosition(0)
-        
-    
-class SparkMaxPivot:
-    """Swerve Drive SparkMax Class
-    Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
-    """
-
-    # PID coefficients
-    kP = 0.9
-    kI = 0
-    kD = 0
-    kIz = 0.0
-    kFF = 0
-    kMaxOutput = 1
-    kMinOutput = -1
-    maxRPM = 5700
-
-    # Smart Motion Coefficients
-    maxVel = 2000  # rpm
-    maxAcc = 1500
-    minVel = 0
-    allowedErr = 0.01
-    smartMotionSlot = 0
-
-    target_position = 0
-
-    def __init__(
-        self,
-        canID,
-        inverted=False,
-        gear_ratio=1,
-        wheel_diameter=1,
-        absolute_encoder=False,
-        z_offset=0,
-        follower_canID=None,
-    ):
-        self.canID = canID
-        self.follower_canID = follower_canID
-        self.gear_ratio = gear_ratio
-        self.inverted = inverted
-        self.absolute = absolute_encoder
-        self.gear_ratio = gear_ratio
-        self.wheel_diameter = wheel_diameter
-        self.zOffset = z_offset
-
-        # Encoder parameters
-        # https://docs.reduxrobotics.com/canandcoder/spark-max
-        # https://github.com/REVrobotics/MAXSwerve-Java-Template/blob/main/src/main/java/frc/robot/subsystems/MAXSwerveModule.java
-
-        self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
-        self.config = rev.SparkMaxConfig()
-
-        self.config.inverted(inverted)
-        self.config.setIdleMode(rev.SparkMaxConfig.IdleMode.kBrake)
-        self.config.smartCurrentLimit(40)
-        
-        # Limit Switch
-        self.config.limitSwitch.setSparkMaxDataPortConfig()
-        
-
-        self.encoder = self.motor.getAbsoluteEncoder()
-        self.controller = self.motor.getClosedLoopController()
-
-        self.config.absoluteEncoder.inverted(inverted)
-        self.config.absoluteEncoder.positionConversionFactor(
-            2 * math.pi / self.gear_ratio
-        )
-
-        self.config.absoluteEncoder.velocityConversionFactor(0.104719755119659771)
-
-        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
-        self.config.closedLoop.positionWrappingEnabled(False)
-        self.config.closedLoop.positionWrappingMinInput(0)
-        self.config.closedLoop.positionWrappingMaxInput(2 * math.pi / self.gear_ratio)
-
-        # self.SMcontroller.setSmartMotionMaxVelocity(self.maxVel, self.smartMotionSlot)
-        # self.SMcontroller.setSmartMotionMinOutputVelocity(self.minVel, self.smartMotionSlot)
-        # self.SMcontroller.setSmartMotionMaxAccel(self.maxAcc, self.smartMotionSlot)
-        # self.SMcontroller.setSmartMotionAllowedClosedLoopError(self.allowedErr, self.smartMotionSlot)
-
-        # PID parameters
-        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
-        self.config.closedLoop.IZone(self.kIz)
-
-        self.config.closedLoop.outputRange(
-            self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0
-        )
-
-        self.motor.configure(
-            self.config,
-            rev.SparkMax.ResetMode.kResetSafeParameters,
-            rev.SparkMax.PersistMode.kPersistParameters,
-        )
-
-        # Setup follower
-        if follower_canID is not None:
-            follower_motor = rev.SparkMax(
-                self.follower_canID, rev.SparkMax.MotorType.kBrushless
-            )
-            self.followerConfig = rev.SparkMaxConfig()
-            self.followerConfig.follow(self.motor, invert=True)
-            self.motor.configure(
-                self.followerConfig,
-                rev.SparkMax.ResetMode.kResetSafeParameters,
-                rev.SparkMax.PersistMode.kPersistParameters,
-            )
-
-            # follower_motor.setIdleMode(rev.CANSparkMax.IdleMode.kCoast)
-            # follower_motor.setSmartCurrentLimit(40)
-
-            self.follower_motor = follower_motor
-
-        else:
-            self.follower_motor = None
-
-    def clearFaults(self):
-        """SparkMaxPivot.clearFaults() -> None
-
-        Clear the faults on the motor controller."""
-        self.motor.clearFaults()
-
-    def setPosition(self, position):
-        """SparkMaxPivot.setPosition(position: float) -> None
-
-        Set the position of the motor controller.
-
-        ::params:
-        position: float : The position to set the motor controller to."""
-        self.target_position = position - self.zOffset
-        self.controller.setReference(
-            self.target_position, rev.SparkMax.ControlType.kPosition
-        )
-        return False
-
-    def getPosition(self):
-        """SparkMaxPivot.getPosition() -> float
-
-        Get the position of the motor controller."""
-        rotation = self.encoder.getPosition()
-        return rotation
-    
-    def getForwardLimitSwitch(self):
-        return self.motor.getForwardLimitSwitch().get()
-
-    def atPosition(self, tolerance=0.05):
-        """SparkMaxPivot.atPosition(tolerance: float) -> bool
-
-        Check if the motor controller is at the target position."""
-        err = self.target_position - self.getPosition()
-        if abs(err) <= tolerance:
-            return True
-        return False
-    
-    
-    
-class SparkMaxDualSpinner:
-    """Swerve Drive SparkMax Class
-    Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
-    """
-
-    # PID coefficients
-    kP = 0.32
-    kI = 1e-4
-    kD = 1
-    kIz = 0.30
-    kFF = 0
-    kMaxOutput = 1
-    kMinOutput = -1
-    maxRPM = 5700
-
-    # Smart Motion Coefficients
-    maxVel = 2000  # rpm
-    maxAcc = 1000
-    minVel = 0
-    allowedErr = 0
-
-    smartMotionSlot = 0
-
-    def __init__(
-        self,
-        canID,
-        inverted=False,
-        gear_ratio=1,
-        wheel_diameter=1,
-        absolute_encoder=False,
-        z_offset=0,
-    ):
-        self.canID = canID
-        self.gear_ratio = gear_ratio
-        self.inverted = inverted
-        self.absolute = absolute_encoder
-        self.gear_ratio = gear_ratio
-        self.wheel_diameter = wheel_diameter
-        self.zOffset = z_offset
-
-        self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
-        self.config = rev.SparkMaxConfig()
-        self.config.inverted(not inverted)
-        self.config.setIdleMode(rev.SparkMaxConfig.IdleMode.kBrake)
-        self.config.smartCurrentLimit(25)
-        self.controller = self.motor.getClosedLoopController()
-        self.encoder = self.motor.getAbsoluteEncoder()
-
-        self.config.encoder.velocityConversionFactor(0.104719755119659771)
-
-        self.motor.configure(
-            self.config,
-            rev.SparkMax.ResetMode.kResetSafeParameters,
-            rev.SparkMax.PersistMode.kPersistParameters,
-        )
-
-        self.clearFaults()
-
-    def clearFaults(self):
-        """SparkMaxDualSpinner.clearFaults() -> None
-
-        Clear the faults on the motor controller."""
-        self.motor.clearFaults()
-
-    def setSpeed(self, speed):
-        """SparkMaxDualSpinner.setSpeed(speed: float) -> None
-
-        Set the speed of the motor controller.
-
-        ::params:
-        speed: float : The speed to set the motor controller to."""
-
-        self.target_speed = speed
-        self.motor.set(speed)
-        return False
-
-    def getSpeed(self):
-        """SparkMaxDualSpinner.getSpeed() -> float
-
-        Gets the current speed of the motor controller."""
-        return self.encoder.getVelocity()
-
-    def atSpeed(self, tolerance=0.02):
-        """SparkMaxDualSpinner.atSpeed(tolerance: float) -> bool
-
-        Check if the motor controller is at speed."""
-        err = self.target_speed - self.getSpeed()
-        if abs(err) <= tolerance:
-            return True
-        return False

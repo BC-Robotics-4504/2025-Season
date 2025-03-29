@@ -57,4 +57,5 @@ class Wench:
     def resetEncoder(self):
         self.wenchMotor.getEncoder().setPosition(0)
 
-        
+    def execute(self):
+        return
