@@ -206,7 +206,7 @@ class SparkMaxTurning:
     """
 
     # PID coefficients
-    kP = 0.15
+    kP = 0.12
     kI = 0
     kD = 0
     kIz = 0
@@ -265,8 +265,8 @@ class SparkMaxTurning:
             rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
         )
         self.config.closedLoop.positionWrappingEnabled(True)
-        self.config.closedLoop.positionWrappingMinInput(0)
-        self.config.closedLoop.positionWrappingMaxInput(2 * math.pi)
+        self.config.closedLoop.positionWrappingMinInput(-math.pi)
+        self.config.closedLoop.positionWrappingMaxInput(math.pi)
         self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
         self.config.closedLoop.outputRange(
             self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0

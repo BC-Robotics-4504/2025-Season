@@ -1,21 +1,24 @@
 import rev
 import wpilib
 import math
-
+\
 class Intake:
     spinMotor: rev.SparkMax
     pivotMotor: rev.SparkMax
     
     def __init__(self, CAN_ids:tuple[int, int]):
-        print(CAN_ids)
+        
+        self.CAN_ids = CAN_ids
+        
         self.spinMotor = SparkMaxDualSpinner(
-            20, #! TYPE Error Not subscriptable? why?
-            inverted=False, 
+             21,#! TYPE Error Not subscriptable? why?
+             inverted=False, 
          )
         
         self.pivotMotor = SparkMaxPivot(
-            21, #! TYPE Error Not subscriptable? why?
+            20, #! TYPE Error Not subscriptable? why?
             inverted=False, 
+            z_offset=0
         )
         
     def setPosition(self, position: float):
