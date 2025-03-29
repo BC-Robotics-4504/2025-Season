@@ -8,4 +8,8 @@ class RobotConfig(dataclass):
     
     # Drive Motor
     drivingMotorReduction: float = 8.14
+    
+    # 
+    
+    
 
