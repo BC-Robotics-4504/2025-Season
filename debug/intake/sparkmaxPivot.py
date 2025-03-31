@@ -5,7 +5,7 @@ class SparkMaxPivot:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
     """
-    kP = 0.15
+    kP = 0.25
     kI = 0
     kD = 0
     kIz = 0
@@ -16,7 +16,7 @@ class SparkMaxPivot:
 
     # Smart Motion Coefficients
     maxVel = 1000  # rpm
-    maxAcc = 600
+    maxAcc = 2000
     minVel = 0
     allowedErr = 0
 
@@ -42,22 +42,24 @@ class SparkMaxPivot:
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
         self.config = rev.SparkMaxConfig()
 
-        self.config.smartCurrentLimit(40)
+        self.config.smartCurrentLimit(60)
 
         self.config.absoluteEncoder.setSparkMaxDataPortConfig()
-        self.config.absoluteEncoder.inverted(inverted)
+        # self.config.absoluteEncoder.inverted(inverted)
         self.config.absoluteEncoder.endPulseUs(1024)
         self.config.absoluteEncoder.startPulseUs(1)
-        self.config.absoluteEncoder.positionConversionFactor(2 * math.pi)
+        self.config.absoluteEncoder.positionConversionFactor(2*math.pi/self.gear_ratio)
 
         # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
-        z_offset /= 2.0 * math.pi
-        if z_offset < 0.0:
-            z_offset += 1.0
+        # z_offset /= 2.0 * math.pi
+        # if z_offset < 0.0:
+        #     z_offset += 1.0
 
-        self.config.absoluteEncoder.zeroOffset(
-            z_offset
-        )  #!FIXME Causes code to crash with Invalid Parameter Runtime error
+        # self.config.absoluteEncoder.zeroOffset(
+        #     z_offset
+        
+        self.config.setIdleMode(self.config.IdleMode.kBrake)
+        # )  #!FIXME Causes code to crash with Invalid Parameter Runtime error
         # #TODO: Configure Feedback Sensor dataport
         self.config.closedLoop.setFeedbackSensor(
             rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
@@ -67,7 +69,9 @@ class SparkMaxPivot:
         self.config.closedLoop.positionWrappingMaxInput(2 * math.pi)
         self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
         self.config.closedLoop.outputRange(
-            self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot1
+            self.kMinOutput, 
+            self.kMaxOutput, 
+            rev.ClosedLoopSlot.kSlot0
         )
         
         self.encoder = self.motor.getAbsoluteEncoder()
@@ -80,6 +84,8 @@ class SparkMaxPivot:
         )
         
         self.clearFaults()
+        
+        
 
     def clearFaults(self):
         """SparkMaxTurning.clearFaults()
@@ -95,7 +101,7 @@ class SparkMaxPivot:
         self.controller.setReference(
             position, 
             rev._rev.SparkLowLevel.ControlType.kPosition, 
-            rev.ClosedLoopSlot.kSlot1
+            rev.ClosedLoopSlot.kSlot0
         )
         return False
 

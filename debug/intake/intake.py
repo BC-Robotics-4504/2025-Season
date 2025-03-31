@@ -32,19 +32,21 @@ class Intake:
     def __init__(self, config: IntakeConfig) -> None:
         self.config = config
         
-        
         self.pivotMotor = SparkMaxPivot(
             self.config.CAN_ids[0], 
             inverted=False, 
             z_offset=self.config.pivot_zoffset,
             gear_ratio=self.config.pivot_gear_ratio
         )
-    
+            
         self.spinnerMotor = SparkMaxSpinner(
             self.config.CAN_ids[1],
             inverted=False
         )
         
+        self.setUp()
+
+
     def setDown(self):
         if self.current_position != PivotPosition.DOWN:
             self.__setAngle__(self.config.down_angle)
@@ -84,9 +86,8 @@ class Intake:
         self.pivotMotor.clearFaults()
         return None
     
-    def resetEncoder(self):
-        self.spinnerMotor.getEncoder().Position(0)
-        
     def execute(self):
-        return
+        pos = self.pivotMotor.getPosition()
+        print(pos)
+        pass
         
