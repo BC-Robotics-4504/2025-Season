@@ -203,24 +203,21 @@ class SwerveDrive:
         
         # Rotation optimization + Cos compensation
         fl_angle = Rotation2d(self.fl_mod.getAngle())
-        # fl_opt = SwerveModuleState.optimize(fl, fl_angle)
         fl.optimize(fl_angle)
         fl.speed *= (fl.angle - fl_angle).cos()
         
         fr_angle = Rotation2d(self.fr_mod.getAngle())
-        # fr_opt = SwerveModuleState.optimize(fr, fr_angle) 
         fr.optimize(fr_angle)
         fr.speed *= (fr.angle - fr_angle).cos()
         
         rl_angle = Rotation2d(self.rl_mod.getAngle())
-        # rl_opt = SwerveModuleState.optimize(rl, rl_angle) 
         rl.optimize(rl_angle)
         rl.speed *= (rl.angle - rl_angle).cos()
         
         rr_angle = Rotation2d(self.rr_mod.getAngle())
-        # rr_opt = SwerveModuleState.optimize(rr, rr_angle) 
         rr.optimize(rr_angle)
         rr.speed *= (rr.angle - rr_angle).cos()
+        
         self.target_chassis_speeds = self.kinematics.toChassisSpeeds((fl, fr, rl, rr))
         self.move_changed = True        
 

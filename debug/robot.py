@@ -21,16 +21,16 @@ class MyRobot(MagicRobot):
     swerve: SwerveDrive
     swerve_config = SwerveConfig(
         fl_CAN=(1, 2),  # (drive_id, turn_id)
-        fl_zoffset=0.1104242,  # rad
+        fl_zoffset=2.41,  # rad
         fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0]),  # m
         fr_CAN=(3, 4),  # (drive_id, turn_id)
-        fr_zoffset=0.5566983,  # rad
+        fr_zoffset=4.5,  # rad
         fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1]),  # m
         rl_CAN=(5, 6),  # (drive_id, turn_id)
-        rl_zoffset=0.8517382,  # rad
+        rl_zoffset=2.3,  # rad
         rl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[2]),  # m
         rr_CAN=(7, 8),  # (drive_id, turn_id)
-        rr_zoffset=0.2010291,  # rad
+        rr_zoffset=3.7,  # rad
         rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3]),  # m
         wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters * 2,
         CAN_id_imu=11,  # IMU_id
@@ -120,10 +120,11 @@ class MyRobot(MagicRobot):
             
         else:
             self.Wench.setUp()
-        print(self.Wench.wenchMotor.encoder.getPosition())
 
       
         self.swerve.move(Lx, Ly, Rx)
+        
+        print(self.swerve.rr_mod.getAngle())
 
         # """
         # SmartDashboard Setup
