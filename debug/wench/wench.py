@@ -44,18 +44,12 @@ class Wench:
         return
         
     def __setAngle__(self, angle: float):
-        self.wenchMotor.setAbsPosition(angle*self.config.gear_ratio)
+        self.wenchMotor.setPosition(angle)
         return False
-
-    def __getAngle__(self):
-        return self.wenchMotor.getAbsPosition()
     
     def clearFaults(self):
         self.wenchMotor.clearFaults()
         return None
-    
-    def resetEncoder(self):
-        self.wenchMotor.getEncoder().setPosition(0)
 
     def execute(self):
-        return
+        pass

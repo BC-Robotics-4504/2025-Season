@@ -59,15 +59,16 @@ class SparkMaxPivot:
         #     z_offset
         
         self.config.setIdleMode(self.config.IdleMode.kBrake)
-        # )  #!FIXME Causes code to crash with Invalid Parameter Runtime error
-        # #TODO: Configure Feedback Sensor dataport
         self.config.closedLoop.setFeedbackSensor(
             rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
         )
         self.config.closedLoop.positionWrappingEnabled(True)
         self.config.closedLoop.positionWrappingMinInput(0)
         self.config.closedLoop.positionWrappingMaxInput(2 * math.pi)
-        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
+        self.config.closedLoop.pidf(self.kP, 
+                                    self.kI, 
+                                    self.kD, 
+                                    self.kFF)
         self.config.closedLoop.outputRange(
             self.kMinOutput, 
             self.kMaxOutput, 

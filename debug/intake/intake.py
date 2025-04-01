@@ -85,6 +85,5 @@ class Intake:
         return None
     
     def execute(self):
-        pos = self.pivotMotor.getPosition()
         pass
         

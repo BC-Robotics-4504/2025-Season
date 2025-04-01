@@ -5,7 +5,7 @@ class SparkMaxWench:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
     """
-    kP = 0.25
+    kP = 0.5
     kI = 0
     kD = 0
     kIz = 0
@@ -59,14 +59,18 @@ class SparkMaxWench:
         #     z_offset
         
         # self.config.setIdleMode(self.config.IdleMode.kBrake)
-        # #TODO: Configure Feedback Sensor dataport
+        self.config.setIdleMode(self.config.IdleMode.kCoast)
+
         self.config.closedLoop.setFeedbackSensor(
             rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
         )
-        self.config.closedLoop.positionWrappingEnabled(True)
+        self.config.closedLoop.positionWrappingEnabled(False)
         self.config.closedLoop.positionWrappingMinInput(0)
         self.config.closedLoop.positionWrappingMaxInput(2 * math.pi)
-        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
+        self.config.closedLoop.pidf(self.kP, 
+                                    self.kI, 
+                                    self.kD, 
+                                    self.kFF)
         self.config.closedLoop.outputRange(
             self.kMinOutput, 
             self.kMaxOutput, 
@@ -83,8 +87,6 @@ class SparkMaxWench:
         )
         
         self.clearFaults()
-        
-        
 
     def clearFaults(self):
         """SparkMaxTurning.clearFaults()
@@ -99,7 +101,7 @@ class SparkMaxWench:
         Sets the absoulute positon of the encoder"""
         self.controller.setReference(
             position, 
-            rev._rev.SparkLowLevel.ControlType.kPosition, 
+            rev._rev.SparkLowLevel.ControlType.kSmartMotion, 
             rev.ClosedLoopSlot.kSlot0
         )
         return False

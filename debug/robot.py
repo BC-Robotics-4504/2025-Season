@@ -48,9 +48,9 @@ class MyRobot(MagicRobot):
 
     Wench: Wench
     Wench_config = WenchConfig(CAN_id=23, 
-                               up_angle=3, 
-                               down_angle=2.85, 
-                               gear_ratio=125, 
+                               up_angle=1, 
+                               down_angle=-7, 
+                               gear_ratio=125*2/3, 
                                zoffset=0)
 
     # Controller Component Code
@@ -114,6 +114,13 @@ class MyRobot(MagicRobot):
                 
             else:
                 self.Intake.resetSpin()
+                
+        if self.HMI.getX():
+            self.Wench.setDown()
+            
+        else:
+            self.Wench.setUp()
+        print(self.Wench.wenchMotor.encoder.getPosition())
 
       
         self.swerve.move(Lx, Ly, Rx)
