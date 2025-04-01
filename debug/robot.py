@@ -5,6 +5,8 @@ from hmi import HMI, HMIConfig
 
 from intake import Intake, IntakeConfig
 
+from wench import Wench, WenchConfig
+
 from drivetrain import SwerveDrive, SwerveConfig
 
 from pathplannerlib.config import RobotConfig
@@ -15,14 +17,14 @@ from vision import Vision, VisionConfig
 class MyRobot(MagicRobot):
 
     # Swerve Drive Component Code
-    
+
     swerve: SwerveDrive
     swerve_config = SwerveConfig(
         fl_CAN=(1, 2),  # (drive_id, turn_id)
         fl_zoffset=0.1104242,  # rad
         fl_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[0]),  # m
         fr_CAN=(3, 4),  # (drive_id, turn_id)
-        fr_zoffset= 0.5566983,  # rad
+        fr_zoffset=0.5566983,  # rad
         fr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[1]),  # m
         rl_CAN=(5, 6),  # (drive_id, turn_id)
         rl_zoffset=0.8517382,  # rad
@@ -32,17 +34,20 @@ class MyRobot(MagicRobot):
         rr_loc=tuple(RobotConfig.fromGUISettings().moduleLocations[3]),  # m
         wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters * 2,
         CAN_id_imu=11,  # IMU_id
-    ) 
+    )
 
     Intake: Intake
     Intake_config = IntakeConfig(
-        CAN_ids=(20, 21),  
+        CAN_ids=(20, 21),
         pivot_zoffset=0,
-        pivot_gear_ratio=125,
+        pivot_gear_ratio=25,
         up_angle=3.0,
         down_angle=2.85,
         spinner_speed=0.20,
     )
+
+    Wench: Wench
+    Wench_config = WenchConfig(CAN_id=23, up_angle=3, down_angle=2.85, gear_ratio=125, zoffset=0)
 
     # Controller Component Code
     HMI: HMI
@@ -85,42 +90,19 @@ class MyRobot(MagicRobot):
         # if self.Vision.getTargetDistance() is not None:
         #     print(self.Vision.getTargetDistance())
         # Move drivetrain based on Left X/Y and Right X/Y controller inputs
-        
+
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
-        
+
         #  # Actuate Launcher
-            
 
         if self.HMI.getB():
             self.Intake.setDown()
-            
+
         else:
             self.Intake.setUp()
-            
-            
-        # if self.HMI.getY():
-            
-            
-        # if self.HMI.getRT() > 0.35:
-            
-            
-        # if self.HMI.getLT() > 0.35:
-            
-        
-        # # #3.) Actuate Climber
-        # if self.HMI.getDpadUp():
-        #     self.Climber.raiseClimber()
-        
-        # elif self.HMI.getDpadDown():
-        #     self.Climber.lowerClimber()
-            
-        # elif self.HMI.getStart():
-        #     self.Climber.lockClimber()
-        
-        #Runs LAUNCHER state machine
-       
+
+      
         self.swerve.move(Lx, Ly, Rx)
-        
 
         # """
         # SmartDashboard Setup
@@ -139,7 +121,7 @@ class MyRobot(MagicRobot):
         # )
         # wpilib.SmartDashboard.putNumber(
         #     "RF Angle",
-        #     self.SwerveDrive.FrontRightAngleMotor.getAbsPosition(),
+        #     self.swerve.fr_mod.turnMotor.getAbsoluteEncoder().getPosition(),
         # )
         # wpilib.SmartDashboard.putNumber(
         #     "LR Speed", self.SwerveDrive.RearLeftSpeedMotor.getSpeed()

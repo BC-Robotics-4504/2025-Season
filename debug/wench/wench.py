@@ -28,7 +28,7 @@ class Wench:
             self.config.CAN_id, 
             inverted=False, 
             absolute_encoder=True, 
-            z_offset=self.config.gear_ratio
+            gear_ratio=self.config.gear_ratio
         )
         
     def setDown(self):
