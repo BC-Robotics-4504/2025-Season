@@ -40,14 +40,18 @@ class MyRobot(MagicRobot):
     Intake_config = IntakeConfig(
         CAN_ids=(20, 21),
         pivot_zoffset=0,
-        pivot_gear_ratio=25,
-        up_angle=3.0,
-        down_angle=2.85,
-        spinner_speed=0.20,
+        pivot_gear_ratio=64,
+        up_angle=4.,
+        down_angle=3.,
+        spinner_speed=0.35
     )
 
     Wench: Wench
-    Wench_config = WenchConfig(CAN_id=23, up_angle=3, down_angle=2.85, gear_ratio=125, zoffset=0)
+    Wench_config = WenchConfig(CAN_id=23, 
+                               up_angle=3, 
+                               down_angle=2.85, 
+                               gear_ratio=125, 
+                               zoffset=0)
 
     # Controller Component Code
     HMI: HMI
@@ -97,9 +101,19 @@ class MyRobot(MagicRobot):
 
         if self.HMI.getB():
             self.Intake.setDown()
+            self.Intake.setSpin()
 
         else:
             self.Intake.setUp()
+            
+            if self.HMI.getA():
+                self.Intake.setSpin()
+                
+            elif self.HMI.getY():
+                self.Intake.setInverseSpin()
+                
+            else:
+                self.Intake.resetSpin()
 
       
         self.swerve.move(Lx, Ly, Rx)

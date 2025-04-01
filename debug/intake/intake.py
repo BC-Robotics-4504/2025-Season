@@ -17,8 +17,9 @@ class PivotPosition(Enum):
     DOWN = 1
     
 class SpinnerSpeed(Enum):
-    ON = 0
-    OFF = 1
+    FORWARD = 0
+    BACKWARD = 1
+    OFF = 2
 
 class Intake:
     
@@ -51,24 +52,21 @@ class Intake:
         if self.current_position != PivotPosition.DOWN:
             self.__setAngle__(self.config.down_angle)
             self.current_position = PivotPosition.DOWN
-        
-        if self.current_speed != SpinnerSpeed.ON:
-            self.__setSpeed__(self.config.spinner_speed)
-            self.current_speed = SpinnerSpeed.ON
     
     def setUp(self):
         if self.current_position != PivotPosition.UP:
             self.__setAngle__(self.config.up_angle)
             self.current_position = PivotPosition.UP
-        
-        if self.current_speed != SpinnerSpeed.OFF:
-            self.__setSpeed__(0)
-            self.current_speed = SpinnerSpeed.OFF
     
     def setSpin(self):
-        if self.current_speed != SpinnerSpeed.ON:
+        if self.current_speed != SpinnerSpeed.FORWARD:
             self.__setSpeed__(self.config.spinner_speed)
-            self.current_speed = SpinnerSpeed.ON
+            self.current_speed = SpinnerSpeed.BACKWARD
+            
+    def setInverseSpin(self):
+        if self.current_speed != SpinnerSpeed.BACKWARD:
+            self.__setSpeed__(-self.config.spinner_speed)
+            self.current_speed = SpinnerSpeed.BACKWARD
     
     def resetSpin(self):
         if self.current_speed != SpinnerSpeed.OFF:
@@ -88,6 +86,5 @@ class Intake:
     
     def execute(self):
         pos = self.pivotMotor.getPosition()
-        print(pos)
         pass
         

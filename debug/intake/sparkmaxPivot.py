@@ -5,7 +5,7 @@ class SparkMaxPivot:
     """Swerve Drive SparkMax Class
     Custom class for configuring SparkMaxes used in Swerve Drive Drivetrain
     """
-    kP = 0.25
+    kP = 0.35
     kI = 0
     kD = 0
     kIz = 0
@@ -84,8 +84,6 @@ class SparkMaxPivot:
         )
         
         self.clearFaults()
-        
-        
 
     def clearFaults(self):
         """SparkMaxTurning.clearFaults()
