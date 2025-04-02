@@ -9,7 +9,7 @@ class SparkMaxTurning:
     """
 
     # PID coefficients
-    kP = 0.15
+    kP = 0.35
     kI = 0
     kD = 0
     kIz = 0

@@ -62,8 +62,8 @@ class SwerveDrive:
         self.IMU = Pigeon2(11, canbus=CANBus("rio"))
         
         self.__initIMU__()
-        self.fr_mod = SwerveModule(self.config.fl_CAN, self.config.fl_zoffset, self.config.wheel_diameter)
-        self.fl_mod = SwerveModule(self.config.fr_CAN, self.config.fr_zoffset, self.config.wheel_diameter)
+        self.fr_mod = SwerveModule(self.config.fl_CAN, self.config.fr_zoffset, self.config.wheel_diameter)
+        self.fl_mod = SwerveModule(self.config.fr_CAN, self.config.fl_zoffset, self.config.wheel_diameter)
         self.rl_mod = SwerveModule(self.config.rl_CAN, self.config.rl_zoffset, self.config.wheel_diameter)
         self.rr_mod = SwerveModule(self.config.rr_CAN, self.config.rr_zoffset, self.config.wheel_diameter)
         
