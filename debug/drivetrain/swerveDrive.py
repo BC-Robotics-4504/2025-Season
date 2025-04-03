@@ -218,6 +218,7 @@ class SwerveDrive:
         rr.optimize(rr_angle)
         rr.speed *= (rr.angle - rr_angle).cos()
         
+        
         self.target_chassis_speeds = self.kinematics.toChassisSpeeds((fl, fr, rl, rr))
         self.move_changed = True        
 

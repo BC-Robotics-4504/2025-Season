@@ -124,7 +124,7 @@ class MyRobot(MagicRobot):
       
         self.swerve.move(Lx, Ly, Rx)
         
-        print(self.swerve.rr_mod.getAngle())
+        print(self.swerve.fr_mod.getAngle())
 
         # """
         # SmartDashboard Setup

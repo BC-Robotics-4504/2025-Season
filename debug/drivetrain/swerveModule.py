@@ -119,7 +119,7 @@ class SparkMaxDriving:
         self.config.smartCurrentLimit(60)
         self.config.absoluteEncoder.positionConversionFactor(0.05077956125529683)
 
-        self.config.absoluteEncoder.velocityConversionFactor(1) #TODO: update me!!!!
+        self.config.absoluteEncoder.velocityConversionFactor(0.0008463260209216138) #TODO: update me!!!!
         self.motor.getEncoder().setPosition(0)
 
         self.config.closedLoop.setFeedbackSensor(
@@ -206,7 +206,7 @@ class SparkMaxTurning:
     """
 
     # PID coefficients
-    kP = 0.12
+    kP = 0.35
     kI = 0
     kD = 0
     kIz = 0
@@ -216,8 +216,8 @@ class SparkMaxTurning:
     maxRPM = 5700
 
     # Smart Motion Coefficients
-    maxVel = 1000  # rpm
-    maxAcc = 600
+    maxVel = 2000  # rpm
+    maxAcc = 1000
     minVel = 0
     allowedErr = 0
 
@@ -250,9 +250,14 @@ class SparkMaxTurning:
         self.config.absoluteEncoder.inverted(not inverted)
         self.config.absoluteEncoder.endPulseUs(1024)
         self.config.absoluteEncoder.startPulseUs(1)
+        
+        self.config.absoluteEncoder
+        
+        
+        self.config.absoluteEncoder.velocityConversionFactor((2*math.pi)/60)
         self.config.absoluteEncoder.positionConversionFactor(2 * math.pi)
 
-        # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
+        self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
         z_offset /= 2.0 * math.pi
         if z_offset < 0.0:
             z_offset += 1.0
@@ -265,9 +270,10 @@ class SparkMaxTurning:
             rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
         )
         self.config.closedLoop.positionWrappingEnabled(True)
-        self.config.closedLoop.positionWrappingMinInput(-math.pi)
-        self.config.closedLoop.positionWrappingMaxInput(math.pi)
-        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF)
+        self.config.smartCurrentLimit(40)
+        self.config.closedLoop.positionWrappingMinInput(0)
+        self.config.closedLoop.positionWrappingMaxInput(2*math.pi)
+        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF, rev.ClosedLoopSlot.kSlot0)
         self.config.closedLoop.outputRange(
             self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0
         )
