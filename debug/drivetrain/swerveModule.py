@@ -246,12 +246,12 @@ class SparkMaxTurning:
 
         # self.config.smartCurrentLimit(20)
 
-        self.config.absoluteEncoder.setSparkMaxDataPortConfig()
+        self.config.absoluteEncoder.setSparkMaxDataPortConfig() #? Do we need this?
         self.config.absoluteEncoder.inverted(not inverted)
         self.config.absoluteEncoder.endPulseUs(1024)
         self.config.absoluteEncoder.startPulseUs(1)
         
-        self.config.absoluteEncoder
+        self.config.absoluteEncoder.setSparkMaxDataPortConfig
         
         
         self.config.absoluteEncoder.velocityConversionFactor((2*math.pi)/60)
