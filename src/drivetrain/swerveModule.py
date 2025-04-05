@@ -27,6 +27,12 @@ class SwerveModule:
     def getAngle(self):
         return self.turnMotor.getAbsPosition()
     
+    def atDistance(self):
+        return self.driveMotor.atDistance()
+    
+    def setDistance(self, distance):
+        return self.driveMotor.setDistance(distance)
+    
     def getSpeed(self) -> int:
         return self.driveMotor.getSpeed()
 
@@ -44,20 +50,8 @@ class SwerveModule:
         """Reset Swerve Module Encoders
         
         returns None"""
-        
         self.driveMotor.getEncoder().setPosition(0)
         self.turnMotor.getEncoder().setPosition(0)
-        
-    # def atDistance(self):
-    #     """SparkMaxDriving.atDistance()
-
-    #     Checks if the robot has travlled to the specfied distance"""
-    #     currentDistance = self.driveMotor.
-    #     if abs(currentDistance - self.driveMotor) <= self.tolerance:
-    #         return True
-
-    #     return False
-        
 
 
 
@@ -129,16 +123,15 @@ class SparkMaxDriving:
         self.config.closedLoop.pidf(
             self.kP0, self.kI0, self.kD0, self.kFF0, rev.ClosedLoopSlot.kSlot0
         )
-        
-        self.config.closedLoop.pidf(
-            self.kP1, self.kI1, self.kD1, self.kFF1, rev.ClosedLoopSlot.kSlot1
-        )
 
         self.motor.configure(
             self.config,
             rev.SparkMax.ResetMode.kResetSafeParameters,
-            rev.SparkMax.PersistMode.kPersistParameters,
+            rev.SparkMax.PersistMode.kNoPersistParameters,
         )
+        
+        self.encoder = self.motor.getAbsoluteEncoder()
+        self.controller = self.motor.getClosedLoopController()
         self.clearFaults()
 
     def clearFaults(self):
@@ -160,20 +153,25 @@ class SparkMaxDriving:
         SparkMaxDriving.setSpeed()
 
         Sets the speed of the swerve modules"""
-        self.motor.set(speed)
-        # self.motor.getClosedLoopController().setReference(
-        #     speed, rev.SparkMax.ControlType.kVelocity, rev.ClosedLoopSlot.kSlot0
-        # )  # NOTE: Changed this.
+        # self.motor.set(speed)
+        self.controller.setReference(
+            speed, 
+            rev.SparkMax.ControlType.kVelocity, 
+            rev.ClosedLoopSlot.kSlot0
+        )  # NOTE: Changed this.
         return None
     
+    def getEncoder(self):
+        return self.motor.getEncoder()
+    
     def getDistance(self):
-        return self.motor.getEncoder().getPosition()
+        return self.encoder.getPosition()
 
-    def atDistance(self):
+    def atDistance(self) -> None:
         """SparkMaxDriving.atDistance()
 
         Checks if the robot has travlled to the specfied distance"""
-        currentDistance = self.motor.getEncoder().getPosition()
+        currentDistance = self.encoder.getPosition()
         # print(currentDistance)
         if abs(currentDistance - self.targetDistance) <= self.tolerance:
             return True
@@ -189,7 +187,7 @@ class SparkMaxDriving:
         targetDistance: Distance for the robot to travel
         """
         self.targetDistance = targetDistance
-        self.motor.getClosedLoopController().setReference(
+        self.controller.setReference(
             targetDistance,
             rev.SparkMax.ControlType.kPosition,
             rev.ClosedLoopSlot.kSlot1,
@@ -206,18 +204,18 @@ class SparkMaxTurning:
     """
 
     # PID coefficients
-    kP = 0.35
+    kP = 0.25
     kI = 0
     kD = 0
     kIz = 0
     kFF = 0.0
-    kMaxOutput = 2 * math.pi
-    kMinOutput = -2 * math.pi
+    kMaxOutput = math.pi
+    kMinOutput = -math.pi
     maxRPM = 5700
 
     # Smart Motion Coefficients
-    maxVel = 2000  # rpm
-    maxAcc = 1000
+    maxVel = 3000  # rpm
+    maxAcc = 3000
     minVel = 0
     allowedErr = 0
 
@@ -241,47 +239,47 @@ class SparkMaxTurning:
         self.zOffset = z_offset
 
         self.motor = rev.SparkMax(self.canID, rev.SparkMax.MotorType.kBrushless)
-        self.motor.setInverted(inverted)
+        self.motor.setInverted(True)
         self.config = rev.SparkMaxConfig()
 
-        # self.config.smartCurrentLimit(20)
+        self.config.smartCurrentLimit(40)
 
-        self.config.absoluteEncoder.setSparkMaxDataPortConfig() #? Do we need this?
-        self.config.absoluteEncoder.inverted(not inverted)
-        self.config.absoluteEncoder.endPulseUs(1024)
-        self.config.absoluteEncoder.startPulseUs(1)
+        self.config.absoluteEncoder.setSparkMaxDataPortConfig()
+        self.config.absoluteEncoder.inverted(True)
+        # self.config.absoluteEncoder.endPulseUs(1024)
+        # self.config.absoluteEncoder.startPulseUs(1)
         
-        self.config.absoluteEncoder.setSparkMaxDataPortConfig
-        
-        
-        self.config.absoluteEncoder.velocityConversionFactor((2*math.pi)/60)
-        self.config.absoluteEncoder.positionConversionFactor(2 * math.pi)
+        self.config.absoluteEncoder.positionConversionFactor(2*math.pi)
+        self.config.absoluteEncoder.velocityConversionFactor(.104719755119659771)
 
         self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
         z_offset /= 2.0 * math.pi
         if z_offset < 0.0:
             z_offset += 1.0
-
-        self.config.absoluteEncoder.zeroOffset(
-            z_offset
-        )  #!FIXME Causes code to crash with Invalid Parameter Runtime error
-        # #TODO: Configure Feedback Sensor dataport
+        
+        self.config.absoluteEncoder.zeroOffset(z_offset)  
+        self.config.absoluteEncoder.zeroCentered(True)
         self.config.closedLoop.setFeedbackSensor(
             rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
         )
         self.config.closedLoop.positionWrappingEnabled(True)
-        self.config.smartCurrentLimit(40)
         self.config.closedLoop.positionWrappingMinInput(0)
         self.config.closedLoop.positionWrappingMaxInput(2*math.pi)
-        self.config.closedLoop.pidf(self.kP, self.kI, self.kD, self.kFF, rev.ClosedLoopSlot.kSlot0)
+        self.config.closedLoop.pidf(self.kP, 
+                                    self.kI, 
+                                    self.kD, 
+                                    self.kFF,
+                                    rev.ClosedLoopSlot.kSlot0)
         self.config.closedLoop.outputRange(
-            self.kMinOutput, self.kMaxOutput, rev.ClosedLoopSlot.kSlot0
+            self.kMinOutput, 
+            self.kMaxOutput, 
+            rev.ClosedLoopSlot.kSlot0
         )
 
         self.motor.configure(
             self.config,
             rev.SparkMax.ResetMode.kResetSafeParameters,
-            rev.SparkMax.PersistMode.kPersistParameters,
+            rev.SparkMax.PersistMode.kNoPersistParameters
         )
         self.encoder = self.motor.getAbsoluteEncoder()
         self.controller = self.motor.getClosedLoopController()
@@ -293,13 +291,17 @@ class SparkMaxTurning:
         Clears the faults of the turning SparkMax
         """
         self.motor.clearFaults()
+    
+    def getEncoder(self):
+        return self.motor.getEncoder()
 
     def setAbsPosition(self, position: float):
         """SparkMaxTurning.setAbsPosition()
 
         Sets the absoulute positon of the encoder"""
         self.controller.setReference(
-            position, rev.SparkLowLevel.ControlType.kPosition
+            position, 
+            rev.SparkLowLevel.ControlType.kPosition
         )
         return False
 
@@ -308,4 +310,5 @@ class SparkMaxTurning:
 
         Gets the absolute positon of the encoder
         """
+        
         return self.encoder.getPosition()

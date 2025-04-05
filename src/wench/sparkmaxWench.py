@@ -10,8 +10,8 @@ class SparkMaxWench:
     kD = 0
     kIz = 0
     kFF = 0.0
-    kMaxOutput = 2 * math.pi
-    kMinOutput = -2 * math.pi
+    kMaxOutput = 10 * math.pi
+    kMinOutput = -10 * math.pi
     maxRPM = 5700
 
     # Smart Motion Coefficients
@@ -43,30 +43,24 @@ class SparkMaxWench:
         self.config = rev.SparkMaxConfig()
 
         self.config.smartCurrentLimit(60)
-
         self.config.absoluteEncoder.setSparkMaxDataPortConfig()
-        # self.config.absoluteEncoder.inverted(inverted)
-        self.config.absoluteEncoder.endPulseUs(1024)
-        self.config.absoluteEncoder.startPulseUs(1)
-        self.config.absoluteEncoder.positionConversionFactor(2*math.pi/self.gear_ratio)
+        self.config.absoluteEncoder.inverted(True)
+        # self.config.absoluteEncoder.endPulseUs(1024)
+        # self.config.absoluteEncoder.startPulseUs(1)
+        self.config.absoluteEncoder.positionConversionFactor(1)
 
         # self.config.IdleMode(rev.SparkMax.IdleMode.kBrake)
         # z_offset /= 2.0 * math.pi
         # if z_offset < 0.0:
         #     z_offset += 1.0
 
-        # self.config.absoluteEncoder.zeroOffset(
-        #     z_offset
+        # self.config.absoluteEncoder.zeroOffset(z_offset)
+        #    
         
         # self.config.setIdleMode(self.config.IdleMode.kBrake)
         self.config.setIdleMode(self.config.IdleMode.kCoast)
 
-        self.config.closedLoop.setFeedbackSensor(
-            rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder
-        )
-        self.config.closedLoop.positionWrappingEnabled(False)
-        self.config.closedLoop.positionWrappingMinInput(0)
-        self.config.closedLoop.positionWrappingMaxInput(2 * math.pi)
+        self.config.closedLoop.setFeedbackSensor(rev.ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
         self.config.closedLoop.pidf(self.kP, 
                                     self.kI, 
                                     self.kD, 
@@ -83,7 +77,7 @@ class SparkMaxWench:
         self.motor.configure(
             self.config,
             rev.SparkMax.ResetMode.kResetSafeParameters,
-            rev.SparkMax.PersistMode.kPersistParameters,
+            rev.SparkMax.PersistMode.kNoPersistParameters,
         )
         
         self.clearFaults()
@@ -101,7 +95,7 @@ class SparkMaxWench:
         Sets the absoulute positon of the encoder"""
         self.controller.setReference(
             position, 
-            rev._rev.SparkLowLevel.ControlType.kSmartMotion, 
+            rev._rev.SparkLowLevel.ControlType.kPosition, 
             rev.ClosedLoopSlot.kSlot0
         )
         return False
