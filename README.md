@@ -43,7 +43,5 @@ robotpy installer install robotpy[all]
 
   **Our autonomous plan is as follows...**
 
-  1. Backup to shooting positon
-  2. Shoot preloaded game piece
-  3. Backup 2.75844 meters to exit community
+  1. Backup 2.75844 meters to exit community
   
