@@ -1,0 +1,39 @@
+{
+  "name": "Python 3 + UV",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.13-bookworm",
+  "features": {
+    "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
+    "ghcr.io/jsburckhardt/devcontainer-features/ruff:1": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.defaultInterpreterPath": "/workspaces/2025-Season/.venv/bin/python",
+        "editor.formatOnSave": true,
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true
+      },
+      "extensions": [
+        "github.vscode-github-actions",
+        "aaron-bond.better-comments",
+        "davidanson.vscode-markdownlint",
+        "github.vscode-pull-request-github",
+        "eamodio.gitlens",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "vscode-icons-team.vscode-icons",
+        "tamasfe.even-better-toml"
+      ]
+    }
+  },
+
+  "remoteUser": "vscode",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.local/bin"
+  },
+
+  "postCreateCommand": "uv sync"
+}
