@@ -93,6 +93,7 @@ class SparkMaxPivot:
         """
         self.motor.clearFaults()
 
+
     def setPosition(self, position: float):
         """SparkMaxTurning.setAbsPosition()
 
@@ -110,3 +111,10 @@ class SparkMaxPivot:
         Gets the absolute positon of the encoder
         """
         return self.encoder.getPosition()
+    
+    def getCurrent(self):
+        return self.motor.getOutputCurrent()
+    
+    def getTemp(self):
+        return self.motor.getMotorTemperature()
+

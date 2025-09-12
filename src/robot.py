@@ -19,11 +19,8 @@ from vision import Vision, VisionConfig
 
 class MyRobot(MagicRobot):
 
-    
     # Swerve Drive Component Code
-    
-    
-    
+
     swerve: SwerveDrive
     swerve_config = SwerveConfig(
         fl_CAN=(1, 2),  # (drive_id, turn_id)
@@ -41,10 +38,10 @@ class MyRobot(MagicRobot):
         wheel_diameter=RobotConfig.fromGUISettings().moduleConfig.wheelRadiusMeters * 2,
         CAN_id_imu=11,  # IMU_id
         max_driving_speed=3500,
-        max_angular_speed= 600,
+        max_angular_speed=600,
         chassis_length=0.762,
         chassis_width=0.762,
-        drive_wheel_diameter=0.114
+        drive_wheel_diameter=0.114,
     )
 
     Intake: Intake
@@ -52,17 +49,18 @@ class MyRobot(MagicRobot):
         CAN_ids=(20, 21),
         pivot_zoffset=0,
         pivot_gear_ratio=64,
-        up_angle=4.,
-        down_angle=2.,
-        spinner_speed=0.17
+        up_angle=4.0,
+        down_angle=2.0,
+        spinner_speed=0.45,
+        spinner_high_speed=0.53,
     )
 
-    Wench: Wench
-    Wench_config = WenchConfig(CAN_id=23, 
-                               up_angle=1, 
-                               down_angle=5, 
-                               gear_ratio=1, 
-                               zoffset=0)
+    # Wench: Wench
+    # Wench_config = WenchConfig(CAN_id=23,
+    #                            up_angle=1,
+    #                            down_angle=5,
+    #                            gear_ratio=1,
+    #                            zoffset=0)
 
     # Controller Component Code
     HMI: HMI
@@ -107,53 +105,85 @@ class MyRobot(MagicRobot):
 
         Lx, Ly, Rx, _ = self.HMI.getAnalogSticks()
 
-
         # deadband = 0.05
         # if abs(Lx) < deadband:
         #     Lx = 0
-            
+
         # if abs(Ly) < deadband:
         #     Ly = 0
-            
+
         # if abs(Rx) < deadband:
         #     Rx = 0
 
         #  # Actuate Launcher
 
-        # if self.HMI.getB():
-        #     self.Intake.setDown()
-        #     self.Intake.setSpin()
+        if self.HMI.getLB():
+            self.Intake.setDown()
+            # self.Intake.setSpin()
 
-        # else:
-        #     self.Intake.setUp()
-            
+        else:
+            self.Intake.setUp()
+
+        # Spin Launcher
+
         if self.HMI.getA():
             self.Intake.setSpin()
-            
+
         elif self.HMI.getY():
-            self.Intake.setInverseSpin()
-            
+            self.Intake.setHighInverse()
+
+        elif self.HMI.getRB():
+            self.Intake.setHighSpin()
+
         else:
             self.Intake.resetSpin()
 
-      
         self.swerve.move(-Lx, Ly, Rx)
-               
+        
+        print(f"Pivot: {self.Intake.readPivotCurrent()}, {self.Intake.readPivotTemp()}")
+        print(f"Spinner:{self.Intake.readSpinnerCurrent()}, {self.Intake.readSpinnerTemp()}")
+
+
         # print(f"RR: Angle {self.swerve.rr_mod.getAngle()},\n RAW STICKS: {self.HMI.getAnalogSticks()} ")
-        
-        if self.HMI.getDpadUp():
-            self.Wench.setUp()
-        
-        if self.HMI.getDpadDown():
-            self.Wench.setDown()
-            
+
+        # if self.HMI.getDpadUp():
+        #     self.Wench.setUp()
+
+        # if self.HMI.getDpadDown():
+        #     self.Wench.setDown()
+
         """
         SmartDashboard Setup
         """
+
+        # # Spinner Motor Statistics
+
+        # wpilib.SmartDashboard.putData(
+        #     "Spinner Motor Current", self.Intake.readSpinnerCurrent()
+        # )
+        # wpilib.SmartDashboard.putData("Spinner Motor Temp.", self.Intake.readSpinnerTemp())
         
-        wpilib.SmartDashboard.putData
+        # # Pivot Motor Statistics
         
-   
+        # wpilib.SmartDashboard.putData(
+        #     "Pivot Motor Current", self.Intake.readPivotCurrent()
+        # )
+        # wpilib.SmartDashboard.putData("Pivot Motor Temp.", self.Intake.readPivotTemp())
+
+        # # Swerve Statistics
+
+        # wpilib.SmartDashboard.putData("FR Speed", self.swerve.fr_mod.getSpeed())
+        # wpilib.SmartDashboard.putData("FR Angle", self.swerve.fr_mod.getAngle())
+
+        # wpilib.SmartDashboard.putData("FL Speed", self.swerve.fl_mod.getSpeed())
+        # wpilib.SmartDashboard.putData("FL Angle", self.swerve.fl_mod.getAngle())
+
+        # wpilib.SmartDashboard.putData("RR Speed", self.swerve.rr_mod.getSpeed())
+        # wpilib.SmartDashboard.putData("RR Angle", self.swerve.rr_mod.getAngle())
+
+        # wpilib.SmartDashboard.putData("RL Speed", self.swerve.rl_mod.getSpeed())
+        # wpilib.SmartDashboard.putData("RL Angle", self.swerve.rl_mod.getAngle())
+
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)

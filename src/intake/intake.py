@@ -10,7 +10,8 @@ IntakeConfig = namedtuple('config',
                            'pivot_gear_ratio',
                            'up_angle',
                            'down_angle',
-                           'spinner_speed'])
+                           'spinner_speed',
+                           'spinner_high_speed'])
 
 class PivotPosition(Enum):
     UP = 0
@@ -63,6 +64,16 @@ class Intake:
             self.__setSpeed__(self.config.spinner_speed)
             self.current_speed = SpinnerSpeed.BACKWARD
             
+    def setHighSpin(self):
+        if self.current_speed != SpinnerSpeed.FORWARD:
+            self.__setSpeed__(self.config.spinner_high_speed)
+            self.current_speed = SpinnerSpeed.BACKWARD
+    
+    def setHighInverse(self):
+        if self.current_speed != SpinnerSpeed.FORWARD:
+            self.__setSpeed__(-self.config.spinner_high_speed)
+            self.current_speed = SpinnerSpeed.BACKWARD
+            
     def setInverseSpin(self):
         if self.current_speed != SpinnerSpeed.BACKWARD:
             self.__setSpeed__(-self.config.spinner_speed)
@@ -78,6 +89,18 @@ class Intake:
     
     def __setSpeed__(self, speed: float):
         self.spinnerMotor.setSpeed(speed)
+        
+    def readSpinnerCurrent(self):
+        return self.spinnerMotor.getCurrent()
+    
+    def readSpinnerTemp(self):
+        return self.spinnerMotor.getTemp()
+    
+    def readPivotCurrent(self):
+        return self.spinnerMotor.getCurrent()
+    
+    def readPivotTemp(self):
+        return self.spinnerMotor.getTemp()
     
     def clearFaults(self):
         self.spinnerMotor.clearFaults()

@@ -116,3 +116,9 @@ class SparkMaxSpinner:
     
     def resetEncoder(self):
         self.encoder.setPosition(0)
+        
+    def getCurrent(self):
+        return self.motor.getOutputCurrent()
+    
+    def getTemp(self):
+        return self.motor.getMotorTemperature()
