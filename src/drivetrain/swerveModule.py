@@ -167,15 +167,15 @@ class SparkMaxDriving:
     def getDistance(self):
         return self.encoder.getPosition()
 
-    def atDistance(self) -> None:
+    def atDistance(self) -> bool:
         """SparkMaxDriving.atDistance()
 
         Checks if the robot has travlled to the specfied distance"""
         currentDistance = self.encoder.getPosition()
-        # print(currentDistance)
+        print(currentDistance)
         if abs(currentDistance - self.targetDistance) <= self.tolerance:
             return True
-
+        print(f"============={self.targetDistance}===================")
         return False
 
     def setDistance(self, targetDistance: float):
@@ -192,6 +192,7 @@ class SparkMaxDriving:
             rev.SparkMax.ControlType.kPosition,
             rev.ClosedLoopSlot.kSlot1,
         )
+        
         return False
 
     def resetEncoder(self):

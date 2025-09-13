@@ -2,9 +2,19 @@ import math
 from magicbot import AutonomousStateMachine, timed_state, state
 from time import time
 from drivetrain.swerveDrive import SwerveDrive
+from robot import IntakeConfig
 from wpilib import Timer
 # this is one of your components
-def distance_to_rotation(distance, wheel_diamter=0.1016):
+def distance_to_rotation(distance: float, wheel_diamter=0.114) -> float:
+    """
+    Converts a given distance in meters (m) to wheel rotations of the drive motor.
+    
+    **Parameters**
+    
+    - `distance`
+    The distance in meters (m) for the robot to travel. 
+    
+    """
     return distance / (math.pi*wheel_diamter)
     
 DISTANCE1 = 1 # m
